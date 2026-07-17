@@ -469,6 +469,13 @@ a {
   line-height: 1.7;
 }
 
+.cta-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+}
+
 /* Footer */
 .site-footer {
   padding: 70px 0 30px;
