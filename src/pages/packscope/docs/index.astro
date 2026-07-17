@@ -1,0 +1,16 @@
+---
+// src/pages/packscope/docs/index.astro
+// Packscope docs overview page
+import DocsLayout from '../../../components/DocsLayout.astro';
+import { getEntry, render } from 'astro:content';
+
+const doc = await getEntry('docs', 'index');
+const { Content } = await render(doc!);
+const title = doc!.data.title;
+const description = doc!.data.description;
+---
+
+<DocsLayout title={title} description={description}>
+  <h1>{title}</h1>
+  <Content />
+</DocsLayout>

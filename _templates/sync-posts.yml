@@ -1,0 +1,26 @@
+name: Push Posts to Central Hub
+
+on:
+  push:
+    branches: [ main ]
+    paths: [ 'posts/**' ]
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Push to Central Repo
+        uses: dmnemec/copy_file_to_another_repo_action@main
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.CENTRAL_HUB_TOKEN }}
+        with:
+          source_file: 'posts/'
+          destination_repo: 'awareride/awareride.github.io'
+          destination_folder: 'src/content/posts/__SOURCE__'
+          user_email: 'syncbot@awareride.com'
+          user_name: 'DocSyncBot'
+          commit_message: 'posts: sync from __SOURCE__'

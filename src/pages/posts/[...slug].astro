@@ -1,0 +1,63 @@
+---
+// src/pages/posts/[...slug].astro
+// Catch-all for posts at any directory depth
+// /posts/hello-world/  → id = "hello-world"
+// /posts/packscope/2025-07-21-foo/ → id = "packscope/2025-07-21-foo"
+import Layout from '../../components/Layout.astro';
+import Nav from '../../components/Nav.astro';
+import Footer from '../../components/Footer.astro';
+import { getCollection, getEntry, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts', ({ data }) => !data.draft);
+  return posts.map(post => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { title, date, description, tags, author, source } = post.data;
+
+const formattedDate = date.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+
+const { Content } = await render(post);
+---
+
+<Layout title={title} description={description}>
+  <Nav />
+
+  <main>
+    <article class="article">
+      <a href="/posts" class="article-back">← All Posts</a>
+
+      <header class="article-header">
+        <time class="article-date" datetime={date.toISOString()}>{formattedDate}</time>
+        <h1>{title}</h1>
+        <div class="article-meta" style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+          {tags.length > 0 && (
+            <div class="article-tags">
+              {tags.map(tag => <span class="tag">{tag}</span>)}
+            </div>
+          )}
+          {author && <span style="font-size:0.85rem; color:var(--color-text-muted);">by {author}</span>}
+          {source && (
+            <a href={source} style="font-size:0.8rem; color:var(--color-text-muted);" target="_blank" rel="noopener">
+              View source →
+            </a>
+          )}
+        </div>
+      </header>
+
+      <div class="article-body">
+        <Content />
+      </div>
+    </article>
+  </main>
+
+  <Footer />
+</Layout>

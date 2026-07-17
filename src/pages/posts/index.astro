@@ -1,0 +1,64 @@
+---
+// src/pages/posts/index.astro
+// Blog listing page — grouped by source, supports nested directories
+import Layout from '../../components/Layout.astro';
+import Nav from '../../components/Nav.astro';
+import Footer from '../../components/Footer.astro';
+import PostCard from '../../components/PostCard.astro';
+import { getCollection } from 'astro:content';
+
+const posts = await getCollection('posts', ({ data }) => !data.draft);
+const sorted = posts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+// Group: flat posts (no directory) first, then by source directory
+function dirname(id: string) {
+  const parts = id.split('/');
+  return parts.length > 1 ? parts.slice(0, -1).join('/') : null;
+}
+---
+
+<Layout
+  title="Posts"
+  description="Technical articles from the AwareRide team — building tools with awareness."
+>
+  <Nav />
+
+  <main>
+    <section class="hero" style="padding-bottom: 2rem;">
+      <div class="container">
+        <p class="eyebrow">Blog</p>
+        <h1>Posts</h1>
+        <p class="hero-lead" style="margin-top: 0.5rem;">
+          Thoughts on developer tooling, bundle analysis, perception, and building with awareness.
+        </p>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top: 1rem;">
+      <div class="container">
+        {
+          sorted.length === 0 ? (
+            <p style="text-align:center; color:var(--color-text-muted);">
+              No posts yet. Check back soon.
+            </p>
+          ) : (
+            <div class="posts-grid">
+              {sorted.map(post => (
+                <PostCard
+                  title={post.data.title}
+                  date={post.data.date}
+                  description={post.data.description}
+                  tags={post.data.tags}
+                  slug={post.id}
+                  source={dirname(post.id)}
+                />
+              ))}
+            </div>
+          )
+        }
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</Layout>

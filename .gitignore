@@ -6,7 +6,6 @@ node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-package-lock.json
 yarn.lock
 
 # Logs
@@ -25,7 +24,15 @@ logs
 dist/
 build/
 .packscope-cache/
+.astro/
 
 # Local environment
 .env
 .env.local
+
+# Archive (old static site)
+_archive/
+.wrangler/
+
+# Agents
+.agents/

@@ -1,0 +1,201 @@
+---
+// src/pages/packscope/index.astro
+// Packscope Product Page
+import Layout from '../../components/Layout.astro';
+import Nav from '../../components/Nav.astro';
+import Footer from '../../components/Footer.astro';
+---
+
+<Layout
+  title="Packscope"
+  description="Packscope unpacks mono JavaScript bundles from webpack, rspack, rollup, esbuild, and Vite into navigable, executable module trees."
+>
+  <Nav />
+
+  <main>
+    <!-- Product Hero -->
+    <section class="product-hero">
+      <div class="container">
+        <div class="hero-badge" style="display:inline-block; font-size:0.85rem; font-weight:600; padding:0.25rem 0.9rem; border-radius:100px; background:var(--color-accent-subtle); color:var(--color-accent); margin-bottom:1.25rem;">
+          Open source Node CLI
+        </div>
+        <h1>Unpack JavaScript bundles into real, runnable modules</h1>
+        <p class="hero-lead">
+          Packscope turns a single shipped bundle — from <strong>webpack</strong>,{' '}
+          <strong>rspack</strong>, <strong>rollup</strong>, <strong>esbuild</strong>,{' '}
+          or <strong>Vite</strong> — into a navigable project tree that you can
+          read, grep, edit, and run.
+        </p>
+        <div class="hero-actions">
+          <a href="https://github.com/awareride/packscope" class="btn btn-primary" target="_blank" rel="noopener">Star on GitHub</a>
+          <a href="/packscope/docs" class="btn btn-secondary">Documentation</a>
+        </div>
+
+        <div class="terminal">
+          <div class="terminal-header">
+            <span></span><span></span><span></span>
+            <span class="terminal-title" style="color:#6b6860; font-size:0.75rem; margin-left:0.5rem;">terminal</span>
+          </div>
+          <pre class="terminal-body"><code>$ npx packscope ./dist/app.js ./out
+
+<span class="term-comment"># webpack/rspack output</span>
+out/
+├── header.js
+├── webpack-runtime.js
+├── runtime.js
+├── index.js
+├── modules/&lt;id&gt;.js
+├── manifest.json
+├── rebuild.js
+└── package.json
+
+$ node out/index.js --version
+2.106.4</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section class="section section-alt">
+      <div class="container">
+        <div class="section-header">
+          <p class="eyebrow">Features</p>
+          <h2>What Packscope gives you</h2>
+        </div>
+        <div class="feature-grid">
+          <article class="feature-card">
+            <h3>One file per module</h3>
+            <p>Each webpack/rspack module is written to <code>modules/&lt;id&gt;.js</code>. ES-module chunks go to <code>chunks/</code> and original sources to <code>sources/</code>.</p>
+          </article>
+          <article class="feature-card">
+            <h3>Executable by default</h3>
+            <p>The loader reconstructs the original bundle shape using the real UMD header and webpack runtime, so the unpacked tree runs identically.</p>
+          </article>
+          <article class="feature-card">
+            <h3>Edit &amp; rebuild</h3>
+            <p>Modify any module, then run <code>node out/rebuild.js bundle-edited.js</code> to regenerate a single runnable bundle.</p>
+          </article>
+          <article class="feature-card">
+            <h3>Unpack from URLs</h3>
+            <p>Pass an <code>http://</code> or <code>https://</code> URL. Packscope downloads the bundle, resolves chunks, and rewrites imports to local paths.</p>
+          </article>
+          <article class="feature-card">
+            <h3>Manifest &amp; dependency graph</h3>
+            <p><code>manifest.json</code> contains IDs, sizes, dependency edges, inferred names, and downloaded assets for further analysis.</p>
+          </article>
+          <article class="feature-card">
+            <h3>Optional beautify &amp; rename</h3>
+            <p>Use <code>--beautify</code> and <code>--rename</code> for readable output. Defaults keep original slices for guaranteed execution.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- How it works -->
+    <section class="section">
+      <div class="container">
+        <div class="section-header">
+          <p class="eyebrow">Internals</p>
+          <h2>How it works</h2>
+        </div>
+        <div class="steps">
+          <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-body">
+              <h3>Parse the bundle</h3>
+              <p>Acorn locates the webpack modules dictionary and maps every module boundary.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-body">
+              <h3>Extract faithful bodies</h3>
+              <p>Each module body is sliced verbatim from the bundle. No AST rewrite means no statement-order surprises.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-body">
+              <h3>Reconstruct the loader</h3>
+              <p><code>runtime.js</code> rebuilds the original expression: header + delegator-filled modules + original runtime.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-number">4</div>
+            <div class="step-body">
+              <h3>Wire externals</h3>
+              <p>Externals like <code>chokidar</code> are detected from shim patterns and wired through the same UMD path as the original.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Usage -->
+    <section class="section section-alt">
+      <div class="container">
+        <div class="section-header">
+          <p class="eyebrow">Quick Start</p>
+          <h2>Usage</h2>
+        </div>
+        <div class="usage-grid">
+          <div class="usage-card">
+            <h3>Install</h3>
+            <pre><code>npm install</code></pre>
+          </div>
+          <div class="usage-card">
+            <h3>Unpack a local bundle</h3>
+            <pre><code>npx packscope ./dist/app.js ./out</code></pre>
+          </div>
+          <div class="usage-card">
+            <h3>Unpack from a URL</h3>
+            <pre><code>npx packscope https://example.com/app.js ./out</code></pre>
+          </div>
+          <div class="usage-card">
+            <h3>Run the unpacked tree</h3>
+            <pre><code>node out/index.js --version
+node out/index.js --help</code></pre>
+          </div>
+          <div class="usage-card wide">
+            <h3>Options</h3>
+            <ul class="option-list">
+              <li><code>--beautify</code> — pretty-print output (best-effort)</li>
+              <li><code>--decompose</code> — extract classes / services / wrappers for navigation (ES modules)</li>
+              <li><code>--rename</code> — rename wrapper params to <code>module</code>/<code>exports</code>/<code>require</code></li>
+              <li><code>--fetch-assets</code> / <code>--no-fetch-assets</code> — control source-map / asset downloads</li>
+              <li><code>--entry &lt;N&gt;</code> — force entry module id</li>
+            </ul>
+          </div>
+          <div class="usage-card wide">
+            <h3>Rebuild after editing</h3>
+            <pre><code>echo "// patched" >> out/modules/92367.js
+node out/rebuild.js bundle-patched.js
+node bundle-patched.js --version</code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="section">
+      <div class="container">
+        <div class="cta-box">
+          <h2>Ready to inspect your bundle?</h2>
+          <p>
+            Clone the repo and unpack your first mono bundle in seconds.
+          </p>
+          <div class="cta-actions">
+            <a href="https://github.com/awareride/packscope" class="btn btn-primary btn-large" target="_blank" rel="noopener">
+              Star on GitHub
+            </a>
+            <a href="/packscope/docs" class="btn btn-secondary btn-large">
+              Read the Docs
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</Layout>

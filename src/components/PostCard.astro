@@ -1,0 +1,30 @@
+---
+// src/components/PostCard.astro
+export interface Props {
+  title: string;
+  date: Date;
+  description: string;
+  tags: string[];
+  slug: string;
+  source?: string | null;
+}
+
+const { title, date, description, tags, slug, source } = Astro.props;
+const formattedDate = date.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+---
+
+<a href={`/posts/${slug}`} class="post-card">
+  {source && <span class="post-card-source">{source}</span>}
+  <time class="post-card-date" datetime={date.toISOString()}>{formattedDate}</time>
+  <h3>{title}</h3>
+  <p>{description}</p>
+  {tags.length > 0 && (
+    <div class="post-card-tags">
+      {tags.map(tag => <span class="tag">{tag}</span>)}
+    </div>
+  )}
+</a>

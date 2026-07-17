@@ -1,0 +1,177 @@
+---
+// src/components/DocsLayout.astro
+// Layout for documentation pages — sidebar + content
+import '../styles/global.css';
+
+export interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description } = Astro.props;
+const currentPath = Astro.url.pathname;
+---
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title} — Packscope Docs — AwareRide</title>
+  <meta name="description" content={description || 'Packscope documentation'} />
+  <meta name="theme-color" content="#faf9f7" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <style>
+    .docs-wrapper {
+      display: flex;
+      max-width: 1400px;
+      margin: 0 auto;
+      min-height: calc(100vh - 60px);
+    }
+    .docs-sidebar {
+      width: 260px;
+      flex-shrink: 0;
+      padding: 2rem 1.5rem;
+      border-right: 1px solid var(--color-border-light);
+      position: sticky;
+      top: 60px;
+      height: calc(100vh - 60px);
+      overflow-y: auto;
+    }
+    .docs-sidebar h4 {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--color-text-muted);
+      margin-bottom: 0.75rem;
+    }
+    .docs-sidebar a {
+      display: block;
+      padding: 0.35rem 0;
+      font-size: 0.9rem;
+      color: var(--color-text-secondary);
+      transition: color var(--transition);
+    }
+    .docs-sidebar a:hover,
+    .docs-sidebar a.active {
+      color: var(--color-text);
+      font-weight: 500;
+    }
+    .docs-content {
+      flex: 1;
+      padding: 2.5rem 3rem;
+      max-width: 800px;
+    }
+    .docs-content h1 {
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+    }
+    .docs-content h2 {
+      font-size: 1.4rem;
+      margin: 2rem 0 0.75rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--color-border-light);
+    }
+    .docs-content h3 {
+      font-size: 1.1rem;
+      margin: 1.5rem 0 0.5rem;
+    }
+    .docs-content p {
+      margin-bottom: 1rem;
+      line-height: 1.75;
+    }
+    .docs-content ul, .docs-content ol {
+      margin: 0.75rem 0 1.25rem 1.5rem;
+      color: var(--color-text-secondary);
+    }
+    .docs-content li {
+      margin-bottom: 0.35rem;
+    }
+    .docs-content table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.25rem 0;
+    }
+    .docs-content th, .docs-content td {
+      text-align: left;
+      padding: 0.6rem 0.75rem;
+      border: 1px solid var(--color-border-light);
+      font-size: 0.9rem;
+    }
+    .docs-content th {
+      background: var(--color-bg-alt);
+      font-weight: 600;
+    }
+    .docs-breadcrumb {
+      font-size: 0.85rem;
+      color: var(--color-text-muted);
+      margin-bottom: 1.5rem;
+    }
+    .docs-breadcrumb a {
+      color: var(--color-text-secondary);
+    }
+    .docs-breadcrumb a:hover {
+      color: var(--color-text);
+    }
+
+    @media (max-width: 768px) {
+      .docs-sidebar {
+        display: none;
+      }
+      .docs-content {
+        padding: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="nav container">
+      <a href="/" class="logo" aria-label="AwareRide home">
+        <span class="logo-mark"><img src="/images/logo.png" alt="" width="28" height="28" /></span>
+        <span class="logo-text">AwareRide</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="/#projects">Projects</a></li>
+        <li><a href="/posts">Posts</a></li>
+        <li><a href="/packscope">Packscope</a></li>
+        <li><a href="https://github.com/awareride" class="nav-cta" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <div class="docs-wrapper">
+    <aside class="docs-sidebar">
+      <h4>Packscope Docs</h4>
+      <a href="/packscope/docs" class:list={[{ active: currentPath === '/packscope/docs' || currentPath === '/packscope/docs/' }]}>
+        Overview
+      </a>
+      <a href="/packscope/docs/getting-started" class:list={[{ active: currentPath === '/packscope/docs/getting-started' || currentPath === '/packscope/docs/getting-started/' }]}>
+        Getting Started
+      </a>
+      <a href="/packscope/docs/cli-reference" class:list={[{ active: currentPath === '/packscope/docs/cli-reference' || currentPath === '/packscope/docs/cli-reference/' }]}>
+        CLI Reference
+      </a>
+      <a href="/packscope/docs/devtools-overrides" class:list={[{ active: currentPath === '/packscope/docs/devtools-overrides' || currentPath === '/packscope/docs/devtools-overrides/' }]}>
+        DevTools Overrides
+      </a>
+    </aside>
+
+    <article class="docs-content">
+      <div class="docs-breadcrumb">
+        <a href="/">Home</a> / <a href="/packscope">Packscope</a> / <span>{title}</span>
+      </div>
+      <slot />
+    </article>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-bottom" style="border-top:none;">
+      <p>&copy; {new Date().getFullYear()} AwareRide. Built with awareness.</p>
+    </div>
+  </footer>
+</body>
+</html>
