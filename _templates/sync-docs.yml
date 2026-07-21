@@ -1,9 +1,9 @@
-name: Push Posts to Central Hub
+name: Push Docs to Central Hub
 
 on:
   push:
     branches: [ main ]
-    paths: [ 'posts/**' ]
+    paths: [ 'docs/**' ]
   workflow_dispatch:
 
 jobs:
@@ -20,17 +20,17 @@ jobs:
           token: ${{ secrets.CENTRAL_HUB_TOKEN }}
           path: central
 
-      - name: Sync posts
+      - name: Sync docs
         run: |
-          rm -rf central/src/content/posts
-          cp -r posts central/src/content/posts
+          rm -rf central/src/content/docs/packscope
+          cp -r docs central/src/content/docs/packscope
           cd central
           git config user.email 'syncbot@awareride.com'
           git config user.name 'DocSyncBot'
-          git add src/content/posts
+          git add src/content/docs/packscope
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "posts: sync from ${{ github.event.repository.name }}"
+            git commit -m "docs: sync from ${{ github.event.repository.name }}"
             git push
           fi
