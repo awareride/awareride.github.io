@@ -1,8 +1,8 @@
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
 
-const docs = defineCollection({
-  loader: glob({ pattern: '**/*.{md,mdx,html}', base: './src/content/docs' }),
+const packscopeDocs = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx,html}', base: './src/content/docs/packscope' }),
   schema: z.object({
     title: z.string(),
     description: z.string().optional(),
@@ -23,4 +23,4 @@ const posts = defineCollection({
   }),
 });
 
-export const collections = { docs, posts };
+export const collections = { packscopeDocs, posts };

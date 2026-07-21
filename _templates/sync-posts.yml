@@ -20,7 +20,7 @@ jobs:
         with:
           source_file: 'posts/'
           destination_repo: 'awareride/awareride.github.io'
-          destination_folder: 'src/content/posts/__SOURCE__'
+          destination_folder: 'src/content/posts/'
           user_email: 'syncbot@awareride.com'
           user_name: 'DocSyncBot'
           commit_message: 'posts: sync from __SOURCE__'
