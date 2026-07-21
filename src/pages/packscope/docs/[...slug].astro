@@ -6,19 +6,25 @@ import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
   const docs = await getCollection('packscopeDocs');
+  const sorted = docs.sort((a, b) => a.data.order - b.data.order);
+  const navItems = sorted.map(doc => ({
+    href: `/packscope/docs/${doc.id}`,
+    label: doc.data.title,
+  }));
+
   return docs.map(doc => ({
     params: { slug: doc.id },
-    props: { doc },
+    props: { doc, navItems },
   }));
 }
 
-const { doc } = Astro.props;
+const { doc, navItems } = Astro.props;
 const { Content } = await render(doc);
 const title = doc.data.title;
 const description = doc.data.description;
 ---
 
-<DocsLayout title={title} description={description}>
+<DocsLayout title={title} description={description} sidebarTitle="Packscope Docs" navItems={navItems}>
   <h1>{title}</h1>
   <Content />
 </DocsLayout>

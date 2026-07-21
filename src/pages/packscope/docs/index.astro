@@ -2,7 +2,7 @@
 // src/pages/packscope/docs/index.astro
 // Packscope docs overview page
 import DocsLayout from '../../../components/DocsLayout.astro';
-import { getEntry, render } from 'astro:content';
+import { getCollection, getEntry, render } from 'astro:content';
 
 const doc = await getEntry('packscopeDocs', 'index');
 
@@ -10,12 +10,19 @@ if (!doc) {
   return Astro.redirect('/packscope');
 }
 
+const allDocs = await getCollection('packscopeDocs');
+const sorted = allDocs.sort((a, b) => a.data.order - b.data.order);
+const navItems = sorted.map(d => ({
+  href: `/packscope/docs/${d.id}`,
+  label: d.data.title,
+}));
+
 const { Content } = await render(doc);
 const title = doc.data.title;
 const description = doc.data.description;
 ---
 
-<DocsLayout title={title} description={description}>
+<DocsLayout title={title} description={description} sidebarTitle="Packscope Docs" navItems={navItems}>
   <h1>{title}</h1>
   <Content />
 </DocsLayout>

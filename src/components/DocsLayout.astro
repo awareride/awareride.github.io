@@ -3,13 +3,31 @@
 // Layout for documentation pages — sidebar + content
 import '../styles/global.css';
 
+export interface NavItem {
+  href: string;
+  label: string;
+}
+
 export interface Props {
   title: string;
   description?: string;
+  sidebarTitle?: string;
+  productName?: string;
+  productHref?: string;
+  navItems?: NavItem[];
+  basePath?: string;
 }
 
-const { title, description } = Astro.props;
-const currentPath = Astro.url.pathname;
+const {
+  title,
+  description,
+  sidebarTitle = 'Docs',
+  productName = 'Packscope',
+  productHref = '/packscope',
+  navItems = [],
+  basePath = '/packscope/docs',
+} = Astro.props;
+const currentPath = Astro.url.pathname.replace(/\/$/, '');
 ---
 
 <!doctype html>
@@ -17,8 +35,8 @@ const currentPath = Astro.url.pathname;
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{title} — Packscope Docs — AwareRide</title>
-  <meta name="description" content={description || 'Packscope documentation'} />
+  <title>{title} — {sidebarTitle} — AwareRide</title>
+  <meta name="description" content={description || `${productName} documentation`} />
   <meta name="theme-color" content="#faf9f7" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -145,24 +163,23 @@ const currentPath = Astro.url.pathname;
 
   <div class="docs-wrapper">
     <aside class="docs-sidebar">
-      <h4>Packscope Docs</h4>
-      <a href="/packscope/docs" class:list={[{ active: currentPath === '/packscope/docs' || currentPath === '/packscope/docs/' }]}>
-        Overview
-      </a>
-      <a href="/packscope/docs/getting-started" class:list={[{ active: currentPath === '/packscope/docs/getting-started' || currentPath === '/packscope/docs/getting-started/' }]}>
-        Getting Started
-      </a>
-      <a href="/packscope/docs/cli-reference" class:list={[{ active: currentPath === '/packscope/docs/cli-reference' || currentPath === '/packscope/docs/cli-reference/' }]}>
-        CLI Reference
-      </a>
-      <a href="/packscope/docs/devtools-overrides" class:list={[{ active: currentPath === '/packscope/docs/devtools-overrides' || currentPath === '/packscope/docs/devtools-overrides/' }]}>
-        DevTools Overrides
-      </a>
+      <h4>{sidebarTitle}</h4>
+      {
+        navItems.length > 0 ? (
+          navItems.map(item => (
+            <a href={item.href} class:list={[{ active: currentPath === item.href.replace(/\/$/, '') }]}>
+              {item.label}
+            </a>
+          ))
+        ) : (
+          <p style="color: var(--color-text-muted); font-size: 0.85rem;">No pages yet.</p>
+        )
+      }
     </aside>
 
     <article class="docs-content">
       <div class="docs-breadcrumb">
-        <a href="/">Home</a> / <a href="/packscope">Packscope</a> / <span>{title}</span>
+        <a href="/">Home</a> / <a href={productHref}>{productName}</a> / <span>{title}</span>
       </div>
       <slot />
     </article>
