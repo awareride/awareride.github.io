@@ -3,6 +3,7 @@
 // Packscope docs overview page
 import DocsLayout from '../../../components/DocsLayout.astro';
 import { getCollection, getEntry, render } from 'astro:content';
+import { buildNav } from '../../../lib/docs';
 
 const doc = await getEntry('packscopeDocs', 'index');
 
@@ -11,11 +12,7 @@ if (!doc) {
 }
 
 const allDocs = await getCollection('packscopeDocs');
-const sorted = allDocs.sort((a, b) => a.data.order - b.data.order);
-const navItems = sorted.map(d => ({
-  href: `/packscope/docs/${d.id}`,
-  label: d.data.title,
-}));
+const navItems = buildNav(allDocs, '/packscope/docs');
 
 const { Content } = await render(doc);
 const title = doc.data.title;

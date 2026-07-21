@@ -3,14 +3,11 @@
 // Catch-all route for Packscope docs — renders Markdown from src/content/docs/
 import DocsLayout from '../../../components/DocsLayout.astro';
 import { getCollection, render } from 'astro:content';
+import { buildNav } from '../../../lib/docs';
 
 export async function getStaticPaths() {
   const docs = await getCollection('packscopeDocs');
-  const sorted = docs.sort((a, b) => a.data.order - b.data.order);
-  const navItems = sorted.map(doc => ({
-    href: `/packscope/docs/${doc.id}`,
-    label: doc.data.title,
-  }));
+  const navItems = buildNav(docs, '/packscope/docs');
 
   return docs.map(doc => ({
     params: { slug: doc.id },
