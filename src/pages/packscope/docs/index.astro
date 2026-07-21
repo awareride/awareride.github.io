@@ -4,10 +4,15 @@
 import DocsLayout from '../../../components/DocsLayout.astro';
 import { getEntry, render } from 'astro:content';
 
-const doc = await getEntry('docs', 'index');
-const { Content } = await render(doc!);
-const title = doc!.data.title;
-const description = doc!.data.description;
+const doc = await getEntry('packscopeDocs', 'index');
+
+if (!doc) {
+  return Astro.redirect('/packscope');
+}
+
+const { Content } = await render(doc);
+const title = doc.data.title;
+const description = doc.data.description;
 ---
 
 <DocsLayout title={title} description={description}>
