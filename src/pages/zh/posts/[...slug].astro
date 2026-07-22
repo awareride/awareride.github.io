@@ -1,0 +1,63 @@
+---
+// src/pages/zh/posts/[...slug].astro
+// Catch-all for posts (locale: zh). Falls back to English content per-post.
+import Layout from '../../../components/Layout.astro';
+import Nav from '../../../components/Nav.astro';
+import Footer from '../../../components/Footer.astro';
+import { getPostLocalizedPaths, renderLocalizedPost } from '../../../lib/content';
+import { buildAlternates } from '../../../lib/i18n';
+
+export async function getStaticPaths() {
+  return getPostLocalizedPaths('zh');
+}
+
+const { slug } = Astro.props;
+const page = await renderLocalizedPost('zh', slug);
+if (!page) return Astro.redirect('/zh/posts');
+const { Content, data, isFallback } = page;
+const { title, date, description, tags, author, source } = data;
+const alternates = buildAlternates(`/posts/${slug}`);
+
+const formattedDate = date.toLocaleDateString('zh-CN', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+---
+
+<Layout title={title} description={description} locale="zh" alternates={alternates}>
+  <Nav alternates={alternates} />
+
+  <main>
+    <article class="article">
+      <a href="/zh/posts" class="article-back">← 全部文章</a>
+
+      <header class="article-header">
+        <time class="article-date" datetime={date.toISOString()}>{formattedDate}</time>
+        <h1>
+          {title}
+          {isFallback && <span class="post-card-fallback" title="暂无中文翻译">EN</span>}
+        </h1>
+        <div class="article-meta" style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+          {tags.length > 0 && (
+            <div class="article-tags">
+              {tags.map(tag => <span class="tag">{tag}</span>)}
+            </div>
+          )}
+          {author && <span style="font-size:0.85rem; color:var(--color-text-muted);">作者:{author}</span>}
+          {source && (
+            <a href={source} style="font-size:0.8rem; color:var(--color-text-muted);" target="_blank" rel="noopener">
+              查看源码 →
+            </a>
+          )}
+        </div>
+      </header>
+
+      <div class="article-body prose">
+        <Content />
+      </div>
+    </article>
+  </main>
+
+  <Footer />
+</Layout>

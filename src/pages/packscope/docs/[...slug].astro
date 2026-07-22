@@ -1,26 +1,30 @@
 ---
 // src/pages/packscope/docs/[...slug].astro
-// Catch-all route for Packscope docs — renders Markdown from src/content/docs/
+// Catch-all route for Packscope docs (default locale: en, no URL prefix).
 import DocsLayout from '../../../components/DocsLayout.astro';
-import { getCollection, render } from 'astro:content';
-import { buildNav } from '../../../lib/docs';
+import { getLocalizedPaths, renderLocalizedPage } from '../../../lib/content';
+import { buildAlternates } from '../../../lib/i18n';
 
 export async function getStaticPaths() {
-  const docs = await getCollection('packscopeDocs');
-  const navItems = buildNav(docs, '/packscope/docs');
-
-  return docs.map(doc => ({
-    params: { slug: doc.id },
-    props: { doc, navItems },
-  }));
+  return getLocalizedPaths('packscope', '/packscope/docs', 'en');
 }
 
-const { doc, navItems } = Astro.props;
-const { Content } = await render(doc);
-const title = doc.data.title;
-const description = doc.data.description;
+const { slug } = Astro.props;
+const page = await renderLocalizedPage('packscope', 'en', slug, '/packscope/docs');
+if (!page) return Astro.redirect('/packscope/docs');
+const { Content, title, description, navItems, isFallback } = page;
+const alternates = buildAlternates(`/packscope/docs/${slug}`);
 ---
 
-<DocsLayout title={title} description={description} sidebarTitle="Packscope Docs" navItems={navItems}>
+<DocsLayout
+  title={title}
+  description={description}
+  sidebarTitle="Packscope Docs"
+  navItems={navItems}
+  locale="en"
+  isFallback={isFallback}
+  basePath="/packscope/docs"
+  alternates={alternates}
+>
   <Content />
 </DocsLayout>

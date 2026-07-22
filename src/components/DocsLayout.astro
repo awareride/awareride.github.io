@@ -5,6 +5,7 @@
 import Layout from './Layout.astro';
 import Nav from './Nav.astro';
 import Footer from './Footer.astro';
+import { t, type Locale, defaultLocale } from '../lib/i18n';
 
 export interface NavItem {
   href: string;
@@ -19,22 +20,33 @@ export interface Props {
   productHref?: string;
   navItems?: NavItem[];
   basePath?: string;
+  locale?: Locale;
+  isFallback?: boolean;
+  alternates?: Partial<Record<Locale, string>>;
 }
 
 const {
   title,
   description,
-  sidebarTitle = 'Docs',
+  sidebarTitle,
   productName = 'Packscope',
   productHref = '/packscope',
   navItems = [],
-  basePath = '/packscope/docs',
+  locale = defaultLocale,
+  isFallback = false,
+  alternates,
 } = Astro.props;
+
+const ui = t[locale];
 const currentPath = Astro.url.pathname.replace(/\/$/, '');
+
+// Localized home/product links.
+const homeHref = locale === defaultLocale ? '/' : `/${locale}/`;
+const localizedProductHref = locale === defaultLocale ? productHref : `/${locale}${productHref}`;
 ---
 
-<Layout title={title} description={description}>
-  <Nav />
+<Layout title={title} description={description} locale={locale} alternates={alternates}>
+  <Nav alternates={alternates} />
 
   <main>
     <div class="docs-page">
@@ -51,18 +63,21 @@ const currentPath = Astro.url.pathname.replace(/\/$/, '');
               </a>
             ))
           ) : (
-            <p style="color: var(--color-text-muted); font-size: 0.85rem;">No pages yet.</p>
+            <p style="color: var(--color-text-muted); font-size: 0.85rem;">{ui.noPages}</p>
           )
         }
       </aside>
 
       <div class="docs-main">
         <div class="docs-breadcrumb">
-          <a href="/">Home</a> / <a href={productHref}>{productName}</a> / <span>{title}</span>
+          <a href={homeHref}>{ui.home}</a> / <a href={localizedProductHref}>{productName}</a> / <span>{title}</span>
         </div>
 
         <article class="prose">
           <h1>{title}</h1>
+          {isFallback && ui.fallbackNotice && (
+            <p class="fallback-notice" role="note">{ui.fallbackNotice}</p>
+          )}
           <slot />
         </article>
       </div>

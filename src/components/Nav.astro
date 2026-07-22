@@ -1,22 +1,42 @@
 ---
 // src/components/Nav.astro
+// Global site header. Locale is inferred from the URL pathname so every
+// page composes <Nav /> without passing a locale prop. Links are prefixed
+// with the current locale (default locale has no prefix).
+import { localeFromPath, localizePath, t, type Locale } from '../lib/i18n';
+import LocaleSwitcher from './LocaleSwitcher.astro';
+
+interface Props {
+  alternates?: Partial<Record<Locale, string>>;
+}
+const { alternates } = Astro.props;
+
+const locale = localeFromPath(Astro.url.pathname);
+const ui = t[locale];
+const homeHref = localizePath('/', locale);
+const projectsHref = localizePath('/#projects', locale);
+const postsHref = localizePath('/posts', locale);
+const packscopeHref = localizePath('/packscope', locale);
 ---
 <header class="site-header">
   <nav class="nav container">
-    <a href="/" class="logo" aria-label="AwareRide home">
+    <a href={homeHref} class="logo" aria-label="AwareRide home">
       <span class="logo-mark">
         <img src="/images/logo.png" alt="" width="28" height="28" />
       </span>
       <span class="logo-text">AwareRide</span>
     </a>
     <ul class="nav-links">
-      <li><a href="/#projects">Projects</a></li>
-      <li><a href="/posts">Posts</a></li>
-      <li><a href="/packscope">Packscope</a></li>
+      <li><a href={projectsHref}>{locale === 'zh' ? '项目' : 'Projects'}</a></li>
+      <li><a href={postsHref}>{ui.posts}</a></li>
+      <li><a href={packscopeHref}>Packscope</a></li>
       <li>
         <a href="https://github.com/awareride" class="nav-cta" target="_blank" rel="noopener noreferrer">
           GitHub
         </a>
+      </li>
+      <li class="nav-locale">
+        <LocaleSwitcher alternates={alternates} current={locale} />
       </li>
     </ul>
   </nav>

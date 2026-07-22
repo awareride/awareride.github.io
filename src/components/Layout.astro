@@ -1,20 +1,25 @@
 ---
 // src/components/Layout.astro
 import '../styles/global.css';
+import { defaultLocale, type Locale } from '../lib/i18n';
 
 export interface Props {
   title: string;
   description?: string;
   ogImage?: string;
+  locale?: Locale;
+  alternates?: Partial<Record<Locale, string>>;
 }
 
-const { title, description, ogImage } = Astro.props;
+const { title, description, ogImage, locale = defaultLocale, alternates = {} } = Astro.props;
 const siteName = 'AwareRide';
 const fullTitle = title === siteName ? title : `${title} — ${siteName}`;
+const site = Astro.site?.toString().replace(/\/$/, '') ?? '';
+const abs = (p: string) => (p.startsWith('http') ? p : `${site}${p}`);
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={locale}>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -28,6 +33,11 @@ const fullTitle = title === siteName ? title : `${title} — ${siteName}`;
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content={siteName} />
   {ogImage && <meta property="og:image" content={ogImage} />}
+
+  <!-- hreflang alternates -->
+  {alternates.en && <link rel="alternate" hreflang="en" href={abs(alternates.en)} />}
+  {alternates.zh && <link rel="alternate" hreflang="zh" href={abs(alternates.zh)} />}
+  {alternates.en && <link rel="alternate" hreflang="x-default" href={abs(alternates.en)} />}
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />

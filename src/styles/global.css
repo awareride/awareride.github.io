@@ -224,6 +224,86 @@ pre.astro-code code {
   opacity: 0.85;
 }
 
+/* --- Locale switcher (in nav) --- */
+.nav-locale {
+  margin-left: 0.25rem;
+}
+
+.locale-switcher {
+  position: relative;
+}
+
+.locale-switcher-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.7rem;
+  border: 1px solid var(--color-border);
+  border-radius: 100px;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color var(--transition), border-color var(--transition);
+}
+
+.locale-switcher-btn:hover {
+  color: var(--color-text);
+  border-color: var(--color-text-muted);
+}
+
+.locale-switcher-globe {
+  display: inline-flex;
+}
+
+.locale-switcher-menu {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  right: 0;
+  min-width: 8rem;
+  margin: 0;
+  padding: 0.35rem;
+  list-style: none;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+  /* Hidden by default; shown on hover/focus-within. */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: opacity var(--transition), transform var(--transition), visibility var(--transition);
+  z-index: 50;
+}
+
+.locale-switcher:hover .locale-switcher-menu,
+.locale-switcher:focus-within .locale-switcher-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.locale-switcher-item {
+  display: block;
+  padding: 0.4rem 0.6rem;
+  border-radius: 4px;
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+
+.locale-switcher-item:hover {
+  background: var(--color-bg-alt);
+  color: var(--color-text);
+}
+
+.locale-switcher-item.active {
+  font-weight: 600;
+  color: var(--color-text);
+  background: var(--color-accent-subtle);
+}
+
 /* --- Hero --- */
 .hero {
   padding: 5rem 0 var(--section-gap);
@@ -590,6 +670,22 @@ pre.astro-code code {
   line-height: 1.4;
 }
 
+/* Inline "EN" badge shown when a post falls back to the default-language content. */
+.post-card-fallback,
+.article-header .post-card-fallback {
+  display: inline-block;
+  margin-left: 0.4rem;
+  padding: 0.05rem 0.4rem;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  vertical-align: middle;
+  color: var(--color-text-muted);
+  background: var(--color-bg-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
 .post-card p {
   font-size: 0.9rem;
   margin-bottom: 0.75rem;
@@ -659,6 +755,17 @@ pre.astro-code code {
   font-size: 1.05rem;
   line-height: 1.85;
   color: var(--color-text-secondary);
+}
+
+/* Shown when a localized docs page falls back to the default-language content. */
+.prose .fallback-notice {
+  margin: 0 0 1.5rem;
+  padding: 0.75rem 1rem;
+  border-left: 3px solid var(--color-accent);
+  background: var(--color-accent-subtle);
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
 }
 
 .prose h1 {

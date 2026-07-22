@@ -1,0 +1,67 @@
+# Sync product docs from an external project to the AwareRide content hub.
+#
+# Place at: .github/workflows/sync-docs.yml
+#
+# Required secret in the external repo:
+#   DOCS_CENTRAL_HUB_TOKEN  - a fine-grained PAT with "Contents: write" on
+#                             awareride/awareride.github.io
+#
+# Directory mapping:
+#   <external>/docs/<product>/   ->  awareride.github.io/src/content/docs/<product>/
+#
+# The external docs/ tree uses docs/<product>/<locale>/<slug>.md
+# (e.g. docs/mytool/en/index.md, docs/mytool/zh/index.md), mirroring the hub's
+# src/content/docs/<product>/<locale>/<slug>.md exactly.
+#
+# IMPORTANT: the product name (the docs/<product>/ directory) must be listed in
+# the hub's src/content.config.ts `products` array, otherwise the synced
+# content won't have a collection. See SKILL.md "Registering the product".
+#
+# The copy uses `cp -L docs/. dest/` ("contents of docs/ into dest/") so the
+# result is always src/content/docs/<product>/..., never docs/docs/...
+
+name: Sync Docs to AwareRide Hub
+
+on:
+  push:
+    branches: [main]
+    paths: ['docs/**']
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout external repo
+        uses: actions/checkout@v4
+
+      - name: Validate content
+        run: node awareride-content-sync/scripts/validate.mjs
+
+      - name: Sync docs/ to central hub
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.DOCS_CENTRAL_HUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          HUB=awareride/awareride.github.io
+          CLONE_DIR=$(mktemp -d)
+          git config --global user.email 'syncbot@awareride.com'
+          git config --global user.name 'DocSyncBot'
+          git clone --single-branch --branch main \
+            "https://x-access-token:${API_TOKEN_GITHUB}@github.com/${HUB}.git" "$CLONE_DIR"
+
+          # Copy CONTENTS of docs/ into src/content/docs/ via rsync.
+          # rsync's `docs/` source means "the contents of docs", so this
+          # never creates src/content/docs/docs/, regardless of whether
+          # the destination dir already exists on the hub.
+          mkdir -p "$CLONE_DIR/src/content/docs"
+          rsync -a docs/ "$CLONE_DIR/src/content/docs/"
+
+          cd "$CLONE_DIR"
+          git add .
+          if git diff --cached --quiet; then
+            echo "No changes to sync."
+          else
+            git commit -m "docs: sync from ${{ github.repository }}"
+            git push
+          fi
