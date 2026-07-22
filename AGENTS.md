@@ -34,9 +34,10 @@ Treat every change as if a teammate will review it on Monday morning.
   writes to the remote (`origin`) on your own. Pushing to remote is initiated
   by the human developer. When work is ready, tell the human and let them push.
 - Never amend, rebase, or rewrite history that has already been pushed.
-- The `main` branch is protected: pushes to `main` trigger the deploy workflow
-  (`.github/workflows/deploy.yml`) which publishes to GitHub Pages and
-  Cloudflare Pages. Do not push to `main` yourself.
+- The `main` branch is protected. The deploy workflow
+  (`.github/workflows/deploy.yml`) is triggered manually (workflow_dispatch)
+  and publishes to GitHub Pages and Cloudflare Pages. Do not push to `main`
+  yourself.
 
 ## Dangerous actions require authorization
 
@@ -80,7 +81,8 @@ src/
   styles/global.css
 .astro/            Generated types (do not edit)
 .github/workflows/ CI: build + deploy to GH Pages & Cloudflare Pages
-_templates/        Reusable workflow templates (e.g. post sync)
+awareride-content-sync/  Content-sync skill for external projects; sync
+                         workflow templates live in its templates/
 public/            Static assets served as-is (favicon, images, CNAME)
 ```
 
@@ -123,8 +125,9 @@ Markdown is rendered via `render(entry)` from `astro:content`; pages pass
 ### Build & deploy
 - `npm run dev` — local dev server.
 - `npm run build` — runs `astro check` (type check) then builds to `dist/`.
-- Pushing to `main` triggers `.github/workflows/deploy.yml`: builds, deploys
-  `dist/` to GitHub Pages and (via wrangler) Cloudflare Pages.
+- `.github/workflows/deploy.yml` is triggered manually (workflow_dispatch):
+  it builds, then deploys `dist/` to GitHub Pages and (via wrangler) Cloudflare
+  Pages. It no longer runs automatically on push to `main`.
 - The site domain is `open.awareride.com` (`public/CNAME`).
 
 ## Coding conventions

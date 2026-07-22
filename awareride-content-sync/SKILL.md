@@ -137,13 +137,17 @@ Run it whenever you add or rename content files.
 ## Syncing to the hub
 
 Sync is a GitHub Action that copies `posts/` (and/or `docs/`) into the hub
-repo on every push to `main`. The action uses a PAT that has write access to
-`awareride/awareride.github.io`.
+repo on every push to `main`. It pushes to a dedicated branch and opens a
+pull request against the hub's `main`, so content is reviewed before it
+ships - nothing lands on `main` directly. The action uses a PAT that has
+write access to `awareride/awareride.github.io`.
 
 ### 1. Create the PAT (one-time, on the hub side)
 
-Create a fine-grained PAT (or a GitHub App token) with **Contents: write**
-on `awareride/awareride.github.io`. Add it as a repository secret named
+Create a fine-grained PAT (or a GitHub App token) on
+`awareride/awareride.github.io` with **Contents: write** (to push the sync
+branch) **and Pull requests: write** (to open the PR). Add it as a repository
+secret named
 `DOCS_CENTRAL_HUB_TOKEN` in the **external** project (Settings → Secrets and
 variables → Actions → New repository secret).
 

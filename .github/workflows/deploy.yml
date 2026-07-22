@@ -1,8 +1,8 @@
 name: Deploy
 
 on:
-  push:
-    branches: [ main ]
+  # Manual only - no longer triggers on push to main. Run via the Actions
+  # tab ("Run workflow") when a deploy is desired.
   workflow_dispatch:
 
 permissions:
