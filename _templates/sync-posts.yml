@@ -1,4 +1,9 @@
-name: Push Posts to Central Hub
+# Sync posts from an external project into the AwareRide content hub.
+# Pushes a dedicated branch and opens a PR against the hub's main (never
+# pushes to main directly). Requires DOCS_CENTRAL_HUB_TOKEN: a fine-grained
+# PAT on awareride/awareride.github.io with "Contents: write" and
+# "Pull requests: write".
+name: Sync Posts to Central Hub
 
 on:
   push:
@@ -16,12 +21,17 @@ jobs:
       - name: Validate content
         run: node awareride-content-sync/scripts/validate.mjs
 
-      - name: Sync posts/ to central repo
+      - name: Sync posts/ to central hub via PR
         env:
           API_TOKEN_GITHUB: ${{ secrets.DOCS_CENTRAL_HUB_TOKEN }}
+          SOURCE_REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
         run: |
           set -euo pipefail
           HUB=awareride/awareride.github.io
+          SRC=$(printf '%s' "${SOURCE_REPO}" | tr '/' '-')
+          BRANCH="sync-posts-${SRC}-${RUN_ID}-${RUN_ATTEMPT}"
           CLONE_DIR=$(mktemp -d)
           git config --global user.email 'syncbot@awareride.com'
           git config --global user.name 'DocSyncBot'
@@ -36,10 +46,19 @@ jobs:
           rsync -a posts/ "$CLONE_DIR/src/content/posts/"
 
           cd "$CLONE_DIR"
+          git checkout -b "$BRANCH"
           git add .
           if git diff --cached --quiet; then
             echo "No changes to sync."
           else
-            git commit -m "posts: sync from ${{ github.repository }}"
-            git push
+            git commit -m "posts: sync from ${SOURCE_REPO}"
+            git push -u origin "$BRANCH"
+
+            # Open a PR against the hub's main for human review.
+            export GH_TOKEN="${API_TOKEN_GITHUB}"
+            PR_BODY="$(printf 'Automated sync of `posts/` from `%s`.\n\nTriggered by workflow run [#%s](https://github.com/%s/actions/runs/%s).' \
+              "${SOURCE_REPO}" "${RUN_ID}" "${SOURCE_REPO}" "${RUN_ID}")"
+            gh pr create --repo "${HUB}" --base main --head "${BRANCH}" \
+              --title "posts: sync from ${SOURCE_REPO}" \
+              --body "${PR_BODY}"
           fi
