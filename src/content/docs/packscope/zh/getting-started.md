@@ -4,8 +4,6 @@ description: 安装 Packscope 并解包你的第一个 bundle。
 order: 2
 ---
 
-> 占位文档:中文翻译待补,当前正文暂用英文。
-
 ## 前置要求
 
 - Node.js >= 14.0.0
