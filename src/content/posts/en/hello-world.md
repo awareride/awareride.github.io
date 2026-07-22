@@ -1,6 +1,6 @@
 ---
 title: "Hello, AwareRide"
-date: 2025-07-21
+date: 2026-07-21
 description: "Our first technical post — why we started AwareRide and what we're building."
 tags: ["announcement"]
 ---

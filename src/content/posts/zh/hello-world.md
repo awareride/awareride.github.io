@@ -1,6 +1,6 @@
 ---
 title: "你好,AwareRide"
-date: 2025-07-21
+date: 2026-07-21
 description: "我们的第一篇技术文章 —— 为什么创立 AwareRide,以及我们在构建什么。"
 tags: ["announcement"]
 ---
