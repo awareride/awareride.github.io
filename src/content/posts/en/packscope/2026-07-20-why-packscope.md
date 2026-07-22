@@ -1,6 +1,6 @@
 ---
 title: "Why I Built Packscope"
-date: 2025-07-20
+date: 2026-07-20
 description: "The story behind Packscope — a tool to unpack JavaScript bundles into runnable module trees."
 tags: ["packscope", "javascript", "tooling"]
 author: "AwareRide"
