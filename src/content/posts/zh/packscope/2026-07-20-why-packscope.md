@@ -1,6 +1,6 @@
 ---
 title: "为什么我做了 Packscope"
-date: 2025-07-20
+date: 2026-07-20
 description: "Packscope 背后的故事 —— 一个把 JavaScript bundle 解包成可运行模块树的工具。"
 tags: ["packscope", "javascript", "tooling"]
 author: "AwareRide"
