@@ -41,8 +41,13 @@ jobs:
       - name: Checkout external repo
         uses: actions/checkout@v4
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
       - name: Validate content
-        run: node awareride-content-sync/scripts/validate.mjs
+        run: node .agents/skills/awareride-content-sync/scripts/validate.mjs
 
       - name: Sync docs/ to central hub via PR
         env:

@@ -8,7 +8,7 @@
 //   - No stray files outside the expected directory layout.
 //
 // Run from the external project root (where posts/ and docs/ live):
-//   node awareride-content-sync/scripts/validate.mjs
+//   node .agents/skills/awareride-content-sync/scripts/validate.mjs
 //
 // Exits non-zero on any error so it can gate a sync workflow.
 
