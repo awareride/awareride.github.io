@@ -33,7 +33,7 @@ is a plain directory copy - no path rewriting.
         getting-started.md
       zh/
         index.md                <- optional; falls back to en if absent
-  awareride-content-sync/      <- this skill (copied in)
+  .agents/skills/awareride-content-sync/      <- this skill (copied in)
     SKILL.md
     scripts/validate.mjs
     templates/sync-posts.yml
@@ -123,7 +123,7 @@ A Node script checks frontmatter conformance and the slug contract. It has no
 dependencies (pure Node stdlib), so it runs anywhere Node 18+ is available:
 
 ```bash
-node awareride-content-sync/scripts/validate.mjs
+node .agents/skills/awareride-content-sync/scripts/validate.mjs
 ```
 
 It exits non-zero on any error, so it can gate the sync workflow. It reports:
@@ -222,7 +222,7 @@ links (the hub's `astro check` reports those after sync).
 
 ```bash
 # Validate before pushing
-node awareride-content-sync/scripts/validate.mjs
+node .agents/skills/awareride-content-sync/scripts/validate.mjs
 
 # Add a post (en + zh)
 #   posts/en/my-post.md
