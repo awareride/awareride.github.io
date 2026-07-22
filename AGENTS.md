@@ -80,7 +80,8 @@ src/
   styles/global.css
 .astro/            Generated types (do not edit)
 .github/workflows/ CI: build + deploy to GH Pages & Cloudflare Pages
-_templates/        Reusable workflow templates (e.g. post sync)
+awareride-content-sync/  Content-sync skill for external projects; sync
+                         workflow templates live in its templates/
 public/            Static assets served as-is (favicon, images, CNAME)
 ```
 
