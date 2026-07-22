@@ -1,0 +1,31 @@
+---
+// src/pages/zh/packscope/docs/[...slug].astro
+// Catch-all route for Packscope docs (locale: zh, /zh/ URL prefix).
+// Falls back to English content per-page when no Chinese version exists.
+import DocsLayout from '../../../../components/DocsLayout.astro';
+import { getLocalizedPaths, renderLocalizedPage } from '../../../../lib/content';
+import { buildAlternates } from '../../../../lib/i18n';
+
+export async function getStaticPaths() {
+  return getLocalizedPaths('packscope', '/zh/packscope/docs', 'zh');
+}
+
+const { slug } = Astro.props;
+const page = await renderLocalizedPage('packscope', 'zh', slug, '/zh/packscope/docs');
+if (!page) return Astro.redirect('/zh/packscope/docs');
+const { Content, title, description, navItems, isFallback } = page;
+const alternates = buildAlternates(`/packscope/docs/${slug}`);
+---
+
+<DocsLayout
+  title={title}
+  description={description}
+  sidebarTitle="Packscope 文档"
+  navItems={navItems}
+  locale="zh"
+  isFallback={isFallback}
+  basePath="/zh/packscope/docs"
+  alternates={alternates}
+>
+  <Content />
+</DocsLayout>

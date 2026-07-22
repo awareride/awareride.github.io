@@ -1,30 +1,39 @@
 ---
 // src/components/Footer.astro
+// Locale is inferred from the URL pathname, matching Nav.
+import { localeFromPath, localizePath, t } from '../lib/i18n';
+
+const locale = localeFromPath(Astro.url.pathname);
+const ui = t[locale];
+const homeHref = localizePath('/', locale);
+const packscopeHref = localizePath('/packscope', locale);
 ---
 <footer class="site-footer">
   <div class="container footer-grid">
     <div>
-      <a href="/" class="logo">
+      <a href={homeHref} class="logo">
         <span class="logo-mark"><img src="/images/logo.png" alt="" width="28" height="28" /></span>
         <span class="logo-text">AwareRide</span>
       </a>
-      <p class="footer-tagline">Open source exploring human perception, spatial intelligence, and wellness.</p>
+      <p class="footer-tagline">{ui.home === '首页'
+        ? '开源探索人类感知、空间智能与身心健康。'
+        : 'Open source exploring human perception, spatial intelligence, and wellness.'}</p>
     </div>
     <div>
-      <h4>Links</h4>
+      <h4>{locale === 'zh' ? '链接' : 'Links'}</h4>
       <ul class="footer-links">
-        <li><a href="/">Home</a></li>
+        <li><a href={homeHref}>{ui.home}</a></li>
         <li><a href="https://github.com/awareride" target="_blank" rel="noopener noreferrer">GitHub</a></li>
       </ul>
     </div>
     <div>
-      <h4>Projects</h4>
+      <h4>{locale === 'zh' ? '项目' : 'Projects'}</h4>
       <ul class="footer-links">
-        <li><a href="/packscope">Packscope</a></li>
+        <li><a href={packscopeHref}>Packscope</a></li>
       </ul>
     </div>
     <div>
-      <h4>Connect</h4>
+      <h4>{locale === 'zh' ? '联系' : 'Connect'}</h4>
       <ul class="footer-links">
         <li><a href="https://github.com/awareride" target="_blank" rel="noopener noreferrer">@awareride</a></li>
         <li><a href="mailto:hello@awareride.com">hello@awareride.com</a></li>
@@ -32,6 +41,6 @@
     </div>
   </div>
   <div class="container footer-bottom">
-    <p>&copy; {new Date().getFullYear()} AwareRide. Built with awareness.</p>
+    <p>&copy; {new Date().getFullYear()} AwareRide. {locale === 'zh' ? '用心构建。' : 'Built with awareness.'}</p>
   </div>
 </footer>

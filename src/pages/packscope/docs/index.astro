@@ -1,24 +1,25 @@
 ---
 // src/pages/packscope/docs/index.astro
-// Packscope docs overview page
+// Packscope docs overview page (default locale: en).
 import DocsLayout from '../../../components/DocsLayout.astro';
-import { getCollection, getEntry, render } from 'astro:content';
-import { buildNav } from '../../../lib/docs';
+import { getLocalizedDocIndex } from '../../../lib/content';
+import { buildAlternates } from '../../../lib/i18n';
 
-const doc = await getEntry('packscopeDocs', 'index');
-
-if (!doc) {
-  return Astro.redirect('/packscope');
-}
-
-const allDocs = await getCollection('packscopeDocs');
-const navItems = buildNav(allDocs, '/packscope/docs');
-
-const { Content } = await render(doc);
-const title = doc.data.title;
-const description = doc.data.description;
+const page = await getLocalizedDocIndex('packscope', 'en', '/packscope/docs');
+if (!page) return Astro.redirect('/packscope');
+const { Content, title, description, navItems, isFallback } = page;
+const alternates = buildAlternates('/packscope/docs');
 ---
 
-<DocsLayout title={title} description={description} sidebarTitle="Packscope Docs" navItems={navItems}>
+<DocsLayout
+  title={title}
+  description={description}
+  sidebarTitle="Packscope Docs"
+  navItems={navItems}
+  locale="en"
+  isFallback={isFallback}
+  basePath="/packscope/docs"
+  alternates={alternates}
+>
   <Content />
 </DocsLayout>

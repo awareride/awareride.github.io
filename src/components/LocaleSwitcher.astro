@@ -1,0 +1,44 @@
+---
+// src/components/LocaleSwitcher.astro
+// Dropdown to switch between available translations of the current page.
+// Receives `alternates` (map of locale → URL) from the page via Layout.
+// Only locales present in `alternates` are offered; a locale is omitted when
+// the page has no version in that language (not even a fallback).
+import { locales, localeLabel, type Locale } from '../lib/i18n';
+
+export interface Props {
+  alternates?: Partial<Record<Locale, string>>;
+  current: Locale;
+}
+
+const { alternates = {}, current } = Astro.props;
+const available = locales.filter((l) => alternates[l]);
+const hidden = available.length <= 1;
+---
+
+{!hidden && (
+  <div class="locale-switcher">
+    <button class="locale-switcher-btn" aria-haspopup="true" aria-expanded="false">
+      <span class="locale-switcher-globe" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+          <circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/>
+        </svg>
+      </span>
+      <span>{localeLabel(current)}</span>
+    </button>
+    <ul class="locale-switcher-menu" role="menu">
+      {available.map((l) => (
+        <li role="none">
+          <a
+            href={alternates[l]}
+            role="menuitem"
+            class:list={['locale-switcher-item', { active: l === current }]}
+            hreflang={l}
+          >
+            {localeLabel(l)}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+)}

@@ -1,14 +1,15 @@
 ---
-// src/pages/posts/index.astro
-// Blog listing page (default locale: en). Grouped by source directory.
-import Layout from '../../components/Layout.astro';
-import Nav from '../../components/Nav.astro';
-import Footer from '../../components/Footer.astro';
-import PostCard from '../../components/PostCard.astro';
-import { getLocalizedPosts } from '../../lib/content';
-import { buildAlternates } from '../../lib/i18n';
+// src/pages/zh/posts/index.astro
+// Blog listing page (locale: zh). Posts without a Chinese version fall back
+// to the English content and are marked on the card.
+import Layout from '../../../components/Layout.astro';
+import Nav from '../../../components/Nav.astro';
+import Footer from '../../../components/Footer.astro';
+import PostCard from '../../../components/PostCard.astro';
+import { getLocalizedPosts } from '../../../lib/content';
+import { buildAlternates } from '../../../lib/i18n';
 
-const items = await getLocalizedPosts('en');
+const items = await getLocalizedPosts('zh');
 const sorted = items.sort(
   (a, b) => b.entry.data.date.getTime() - a.entry.data.date.getTime(),
 );
@@ -21,9 +22,9 @@ function dirname(id: string) {
 ---
 
 <Layout
-  title="Posts"
-  description="Technical articles from the AwareRide team — building tools with awareness."
-  locale="en"
+  title="博客"
+  description="AwareRide 团队的技术文章 —— 以觉察之心构建工具。"
+  locale="zh"
   alternates={alternates}
 >
   <Nav alternates={alternates} />
@@ -31,10 +32,10 @@ function dirname(id: string) {
   <main>
     <section class="hero" style="padding-bottom: 2rem;">
       <div class="container">
-        <p class="eyebrow">Blog</p>
-        <h1>Posts</h1>
+        <p class="eyebrow">博客</p>
+        <h1>文章</h1>
         <p class="hero-lead" style="margin-top: 0.5rem;">
-          Thoughts on developer tooling, bundle analysis, perception, and building with awareness.
+          关于开发工具、bundle 分析、感知,以及以觉察之心构建的思考。
         </p>
       </div>
     </section>
@@ -44,7 +45,7 @@ function dirname(id: string) {
         {
           sorted.length === 0 ? (
             <p style="text-align:center; color:var(--color-text-muted);">
-              No posts yet. Check back soon.
+              暂无文章,敬请期待。
             </p>
           ) : (
             <div class="posts-grid">
@@ -57,7 +58,7 @@ function dirname(id: string) {
                   slug={entry.id}
                   source={dirname(entry.id)}
                   isFallback={isFallback}
-                  locale="en"
+                  locale="zh"
                 />
               ))}
             </div>

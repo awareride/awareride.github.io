@@ -1,35 +1,35 @@
 ---
 // src/pages/posts/[...slug].astro
-// Catch-all for posts at any directory depth
+// Catch-all for posts at any directory depth (default locale: en).
 // /posts/hello-world/  → id = "hello-world"
 // /posts/packscope/2025-07-21-foo/ → id = "packscope/2025-07-21-foo"
 import Layout from '../../components/Layout.astro';
 import Nav from '../../components/Nav.astro';
 import Footer from '../../components/Footer.astro';
-import { getCollection, getEntry, render } from 'astro:content';
+import { renderLocalizedPost } from '../../lib/content';
+import { buildAlternates } from '../../lib/i18n';
 
 export async function getStaticPaths() {
-  const posts = await getCollection('posts', ({ data }) => !data.draft);
-  return posts.map(post => ({
-    params: { slug: post.id },
-    props: { post },
-  }));
+  const { getPostLocalizedPaths } = await import('../../lib/content');
+  return getPostLocalizedPaths('en');
 }
 
-const { post } = Astro.props;
-const { title, date, description, tags, author, source } = post.data;
+const { slug } = Astro.props;
+const page = await renderLocalizedPost('en', slug);
+if (!page) return Astro.redirect('/posts');
+const { Content, data } = page;
+const { title, date, description, tags, author, source } = data;
+const alternates = buildAlternates(`/posts/${slug}`);
 
 const formattedDate = date.toLocaleDateString('en-US', {
   year: 'numeric',
   month: 'long',
   day: 'numeric',
 });
-
-const { Content } = await render(post);
 ---
 
-<Layout title={title} description={description}>
-  <Nav />
+<Layout title={title} description={description} locale="en" alternates={alternates}>
+  <Nav alternates={alternates} />
 
   <main>
     <article class="article">

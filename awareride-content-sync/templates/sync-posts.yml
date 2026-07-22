@@ -1,9 +1,30 @@
-name: Push Posts to Central Hub
+# Sync posts from an external project to the AwareRide content hub.
+#
+# Place at: .github/workflows/sync-posts.yml
+#
+# Required secret in the external repo:
+#   DOCS_CENTRAL_HUB_TOKEN  - a fine-grained PAT with "Contents: write" on
+#                             awareride/awareride.github.io
+#
+# Directory mapping:
+#   <external>/posts/   ->  awareride.github.io/src/content/posts/
+#
+# The posts/ tree uses the locale layout posts/<locale>/... (e.g. posts/en/hello.md,
+# posts/zh/hello.md), mirroring the hub's src/content/posts/<locale>/... exactly.
+# Keep filenames identical across locales so per-page fallback resolves.
+#
+# Why not use dmnemec/copy_file_to_another_repo_action? Its `cp -R src dest/`
+# behavior depends on whether `dest/` already exists on the hub: if it does,
+# contents are merged (correct); if not, the source dir is nested inside dest
+# (posts/posts/). We use a plain `cp -L posts/. dest/` so the copy is always
+# "contents of posts/ into dest/", regardless of hub state.
+
+name: Sync Posts to AwareRide Hub
 
 on:
   push:
-    branches: [ main ]
-    paths: [ 'posts/**' ]
+    branches: [main]
+    paths: ['posts/**']
   workflow_dispatch:
 
 jobs:
@@ -16,7 +37,7 @@ jobs:
       - name: Validate content
         run: node awareride-content-sync/scripts/validate.mjs
 
-      - name: Sync posts/ to central repo
+      - name: Sync posts/ to central hub
         env:
           API_TOKEN_GITHUB: ${{ secrets.DOCS_CENTRAL_HUB_TOKEN }}
         run: |

@@ -1,12 +1,12 @@
 ---
-// src/pages/packscope/index.astro
-// Packscope Product Page (default locale: en). Copy in lib/i18n.ts `packscope`.
-import Layout from '../../components/Layout.astro';
-import Nav from '../../components/Nav.astro';
-import Footer from '../../components/Footer.astro';
-import { packscope as c, localizePath, buildAlternates, type Locale } from '../../lib/i18n';
+// src/pages/zh/packscope/index.astro
+// Packscope Product Page (locale: zh). Copy in lib/i18n.ts `packscope.zh`.
+import Layout from '../../../components/Layout.astro';
+import Nav from '../../../components/Nav.astro';
+import Footer from '../../../components/Footer.astro';
+import { packscope as c, localizePath, buildAlternates, type Locale } from '../../../lib/i18n';
 
-const locale: Locale = 'en';
+const locale: Locale = 'zh';
 const ui = c[locale];
 const docsHref = localizePath('/packscope/docs', locale);
 const alternates = buildAlternates('/packscope');

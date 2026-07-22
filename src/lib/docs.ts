@@ -20,7 +20,7 @@ export function buildNav(docs: DocEntry[], basePath: string): NavItem[] {
       return a.data.order - b.data.order || a.data.title.localeCompare(b.data.title);
     })
     .map(doc => ({
-      href: `${basePath}/${doc.id}`,
+      href: doc.id === 'index' ? basePath : `${basePath}/${doc.id}`,
       label: doc.data.title,
     }));
 }
