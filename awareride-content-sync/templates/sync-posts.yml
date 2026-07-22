@@ -24,6 +24,13 @@
 # contents are merged (correct); if not, the source dir is nested inside dest
 # (posts/posts/). We use a plain `cp -L posts/. dest/` so the copy is always
 # "contents of posts/ into dest/", regardless of hub state.
+#
+# Deleting retired content: the rsync copy only adds/overwrites; it never
+# removes hub-only files (to protect content from other projects). To retire
+# a page, delete it from posts/ here AND list it in sync-delete.list at the
+# repo root (one path per line, e.g. `posts/en/old-post.md`). If that file is
+# present, the workflow runs scripts/apply-delete-list.mjs after the copy to
+# remove the listed paths from the hub. See SKILL.md "Deleting content".
 
 name: Sync Posts to AwareRide Hub
 
@@ -73,6 +80,13 @@ jobs:
           # the destination dir already exists on the hub.
           mkdir -p "$CLONE_DIR/src/content/posts"
           rsync -a posts/ "$CLONE_DIR/src/content/posts/"
+
+          # Apply optional deletions from $GITHUB_WORKSPACE/sync-delete.list.
+          # Only `posts/...` entries are processed here; `docs/...` entries are
+          # handled by sync-docs.yml. Missing file = no-op. Runs after rsync so
+          # deletions win over the copy.
+          node .agents/skills/awareride-content-sync/scripts/apply-delete-list.mjs \
+            "$CLONE_DIR/src/content/posts" posts
 
           cd "$CLONE_DIR"
           git checkout -b "$BRANCH"
