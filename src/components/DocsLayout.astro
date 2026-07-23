@@ -50,22 +50,35 @@ const localizedProductHref = locale === defaultLocale ? productHref : `/${locale
 
   <main>
     <div class="docs-page">
-      <aside class="docs-sidebar">
-        <h4>{sidebarTitle}</h4>
-        {
-          navItems.length > 0 ? (
-            navItems.map(item => (
-              <a
-                href={item.href}
-                class:list={[{ active: currentPath === item.href.replace(/\/$/, '') }]}
-              >
-                {item.label}
-              </a>
-            ))
-          ) : (
-            <p style="color: var(--color-text-muted); font-size: 0.85rem;">{ui.noPages}</p>
-          )
-        }
+      <aside class="docs-sidebar" id="docs-sidebar">
+        <button
+          class="docs-nav-toggle"
+          type="button"
+          aria-expanded="false"
+          aria-controls="docs-sidebar-nav"
+        >
+          <span>{sidebarTitle}</span>
+          <svg class="docs-nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true">
+            <path d="M6 9l6 6 6-6"/>
+          </svg>
+        </button>
+        <nav class="docs-sidebar-nav" id="docs-sidebar-nav">
+          <h4>{sidebarTitle}</h4>
+          {
+            navItems.length > 0 ? (
+              navItems.map(item => (
+                <a
+                  href={item.href}
+                  class:list={[{ active: currentPath === item.href.replace(/\/$/, '') }]}
+                >
+                  {item.label}
+                </a>
+              ))
+            ) : (
+              <p style="color: var(--color-text-muted); font-size: 0.85rem;">{ui.noPages}</p>
+            )
+          }
+        </nav>
       </aside>
 
       <div class="docs-main">
@@ -86,3 +99,23 @@ const localizedProductHref = locale === defaultLocale ? productHref : `/${locale
 
   <Footer />
 </Layout>
+
+<script>
+  // Collapsible docs sidebar (mobile only). On desktop the sidebar is always
+  // visible and the toggle button is hidden.
+  const sidebar = document.getElementById('docs-sidebar');
+  const toggle = sidebar?.querySelector<HTMLButtonElement>('.docs-nav-toggle');
+  if (sidebar && toggle) {
+    const setOpen = (open: boolean) => {
+      sidebar.classList.toggle('open', open);
+      toggle.setAttribute('aria-expanded', String(open));
+    };
+    toggle.addEventListener('click', () => {
+      setOpen(!sidebar.classList.contains('open'));
+    });
+    // Collapse after navigating via a sidebar link (full page load follows).
+    sidebar.querySelectorAll('.docs-sidebar-nav a').forEach((a) => {
+      a.addEventListener('click', () => setOpen(false));
+    });
+  }
+</script>

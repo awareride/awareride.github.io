@@ -43,6 +43,13 @@ export function localeLabel(locale: Locale): string {
   return locale === 'zh' ? '中文' : 'English';
 }
 
+/** BCP-47 locale code per locale, for `toLocaleDateString` and friends.
+ *  Centralized so adding a locale doesn't require hunting down date calls. */
+export const localeCode: Record<Locale, string> = {
+  en: 'en-US',
+  zh: 'zh-CN',
+};
+
 /** UI strings per locale. `fallbackNotice` is shown when a page renders the default
  *  language content because no localized version exists. */
 export const t = {
@@ -51,6 +58,13 @@ export const t = {
     posts: 'Posts',
     docs: 'Docs',
     breadcrumbDocs: 'Docs',
+    projects: 'Projects',
+    links: 'Links',
+    connect: 'Connect',
+    toggleMenu: 'Toggle menu',
+    builtWith: 'Built with awareness.',
+    footerTagline: 'Open source exploring human perception, spatial intelligence, and wellness.',
+    noTranslation: 'No translation available',
     noPages: 'No pages yet.',
     fallbackNotice: '',
   },
@@ -59,6 +73,13 @@ export const t = {
     posts: '博客',
     docs: '文档',
     breadcrumbDocs: '文档',
+    projects: '项目',
+    links: '链接',
+    connect: '联系',
+    toggleMenu: '切换菜单',
+    builtWith: '用心构建。',
+    footerTagline: '开源探索人类感知、空间智能与身心健康。',
+    noTranslation: '暂无中文翻译',
     noPages: '暂无页面。',
     fallbackNotice: '此页暂无中文翻译,以下显示英文原文。',
   },

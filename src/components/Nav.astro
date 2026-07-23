@@ -3,6 +3,12 @@
 // Global site header. Locale is inferred from the URL pathname so every
 // page composes <Nav /> without passing a locale prop. Links are prefixed
 // with the current locale (default locale has no prefix).
+//
+// Desktop: logo ... [primary links][GitHub][locale switcher] (inline row).
+// Mobile (<= 768px): a borderless hamburger toggles a full-screen overlay
+// panel with spacious, large links (Anthropic-style) followed by the GitHub
+// CTA. The locale switcher stays in the header bar, left of the hamburger,
+// so it is reachable without opening the menu.
 import { localeFromPath, localizePath, t, type Locale } from '../lib/i18n';
 import LocaleSwitcher from './LocaleSwitcher.astro';
 
@@ -18,26 +24,67 @@ const projectsHref = localizePath('/#projects', locale);
 const postsHref = localizePath('/posts', locale);
 const packscopeHref = localizePath('/packscope', locale);
 ---
-<header class="site-header">
-  <nav class="nav container">
+<header class="site-header" id="site-header">
+  <div class="nav container">
     <a href={homeHref} class="logo" aria-label="AwareRide home">
       <span class="logo-mark">
         <img src="/images/logo.png" alt="" width="28" height="28" />
       </span>
       <span class="logo-text">AwareRide</span>
     </a>
-    <ul class="nav-links">
-      <li><a href={projectsHref}>{locale === 'zh' ? '项目' : 'Projects'}</a></li>
-      <li><a href={postsHref}>{ui.posts}</a></li>
-      <li><a href={packscopeHref}>Packscope</a></li>
-      <li>
+    <div class="nav-right">
+      <nav class="nav-menu" id="nav-menu" aria-label="Primary">
+        <ul class="nav-menu-primary">
+          <li><a href={projectsHref}>{ui.projects}</a></li>
+          <li><a href={postsHref}>{ui.posts}</a></li>
+          <li><a href={packscopeHref}>Packscope</a></li>
+        </ul>
         <a href="https://github.com/awareride" class="nav-cta" target="_blank" rel="noopener noreferrer">
           GitHub
         </a>
-      </li>
-      <li class="nav-locale">
+      </nav>
+      <div class="nav-locale">
         <LocaleSwitcher alternates={alternates} current={locale} />
-      </li>
-    </ul>
-  </nav>
+      </div>
+      <button
+        class="nav-toggle"
+        type="button"
+        aria-label={ui.toggleMenu}
+        aria-expanded="false"
+        aria-controls="nav-menu"
+      >
+        <span class="nav-toggle-bar" aria-hidden="true"></span>
+        <span class="nav-toggle-bar" aria-hidden="true"></span>
+        <span class="nav-toggle-bar" aria-hidden="true"></span>
+      </button>
+    </div>
+  </div>
 </header>
+
+<script>
+  // Mobile menu toggle. Each navigation is a full page load, so this module
+  // re-runs on every page.
+  const header = document.getElementById('site-header');
+  const toggle = header?.querySelector<HTMLButtonElement>('.nav-toggle');
+  if (header && toggle) {
+    const setOpen = (open: boolean) => {
+      header.classList.toggle('nav-open', open);
+      toggle.setAttribute('aria-expanded', String(open));
+    };
+    toggle.addEventListener('click', () => {
+      setOpen(!header.classList.contains('nav-open'));
+    });
+    // Close after tapping a link (hash/anchor links otherwise leave it open).
+    header.querySelectorAll('.nav-menu a').forEach((a) => {
+      a.addEventListener('click', () => setOpen(false));
+    });
+    // Close on Escape.
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') setOpen(false);
+    });
+    // Close when clicking outside the header.
+    document.addEventListener('click', (e) => {
+      if (!header.contains(e.target as Node)) setOpen(false);
+    });
+  }
+</script>

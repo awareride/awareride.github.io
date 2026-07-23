@@ -7,7 +7,7 @@ import Layout from '../../components/Layout.astro';
 import Nav from '../../components/Nav.astro';
 import Footer from '../../components/Footer.astro';
 import { renderLocalizedPost } from '../../lib/content';
-import { buildAlternates } from '../../lib/i18n';
+import { buildAlternates, localeCode } from '../../lib/i18n';
 
 export async function getStaticPaths() {
   const { getPostLocalizedPaths } = await import('../../lib/content');
@@ -21,7 +21,7 @@ const { Content, data } = page;
 const { title, date, description, tags, author, source } = data;
 const alternates = buildAlternates(`/posts/${slug}`);
 
-const formattedDate = date.toLocaleDateString('en-US', {
+const formattedDate = date.toLocaleDateString(localeCode.en, {
   year: 'numeric',
   month: 'long',
   day: 'numeric',

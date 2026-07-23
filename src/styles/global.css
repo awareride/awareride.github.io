@@ -170,6 +170,7 @@ pre.astro-code code {
 }
 
 .nav {
+  --nav-control-h: 35px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -190,20 +191,34 @@ pre.astro-code code {
   align-items: center;
 }
 
-.nav-links {
+/* Right cluster of the header: nav menu (desktop inline / mobile overlay),
+   locale switcher, and hamburger. They share a single flex gap. */
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.nav-menu {
   display: flex;
   align-items: center;
   gap: 2rem;
 }
 
-.nav-links a {
+.nav-menu-primary {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.nav-menu-primary a {
   font-size: 0.9rem;
   font-weight: 500;
   color: var(--color-text-secondary);
   transition: color var(--transition);
 }
 
-.nav-links a:hover {
+.nav-menu-primary a:hover {
   color: var(--color-text);
 }
 
@@ -211,6 +226,7 @@ pre.astro-code code {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
+  min-height: var(--nav-control-h);
   padding: 0.4rem 1rem;
   border-radius: 100px;
   background: var(--color-bg-dark);
@@ -226,7 +242,12 @@ pre.astro-code code {
 
 /* --- Locale switcher (in nav) --- */
 .nav-locale {
-  margin-left: 0.25rem;
+  /* spacing handled by .nav-right gap */
+}
+
+/* --- Mobile menu toggle (hidden on desktop, shown <= 768px) --- */
+.nav-toggle {
+  display: none;
 }
 
 .locale-switcher {
@@ -237,6 +258,7 @@ pre.astro-code code {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
+  min-height: var(--nav-control-h);
   padding: 0.4rem 0.7rem;
   border: 1px solid var(--color-border);
   border-radius: 100px;
@@ -278,7 +300,8 @@ pre.astro-code code {
 }
 
 .locale-switcher:hover .locale-switcher-menu,
-.locale-switcher:focus-within .locale-switcher-menu {
+.locale-switcher:focus-within .locale-switcher-menu,
+.locale-switcher.open .locale-switcher-menu {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
@@ -755,6 +778,10 @@ pre.astro-code code {
   font-size: 1.05rem;
   line-height: 1.85;
   color: var(--color-text-secondary);
+  /* Break genuinely unbreakable inline content (long URLs, code chains like
+     `if`/`else`/`for` with no spaces) so it never overflows the column.
+     Normal text is unaffected; <pre> blocks are unaffected (white-space:pre). */
+  overflow-wrap: break-word;
 }
 
 /* Shown when a localized docs page falls back to the default-language content. */
@@ -972,12 +999,75 @@ pre.astro-code code {
   color: var(--color-text);
 }
 
+/* Mobile docs sidebar: collapses into a disclosure above the content. */
+.docs-nav-toggle {
+  display: none; /* shown only on mobile */
+}
+
 @media (max-width: 768px) {
+  .docs-page {
+    flex-direction: column;
+  }
+
   .docs-sidebar {
+    position: static;
+    width: 100%;
+    padding: 0;
+    border-right: none;
+    border-bottom: 1px solid var(--color-border-light);
+    margin-bottom: 0.5rem;
+  }
+
+  .docs-nav-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0.85rem 0;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-text);
+    cursor: pointer;
+  }
+
+  .docs-nav-chevron {
+    transition: transform var(--transition);
+  }
+
+  .docs-sidebar.open .docs-nav-chevron {
+    transform: rotate(180deg);
+  }
+
+  /* The h4 duplicates the toggle label on mobile; hide it to avoid redundancy. */
+  .docs-sidebar h4 {
     display: none;
   }
 
+  .docs-sidebar-nav {
+    display: none;
+    padding-bottom: 0.75rem;
+  }
+
+  .docs-sidebar.open .docs-sidebar-nav {
+    display: block;
+  }
+
+  .docs-sidebar-nav a {
+    padding: 0.45rem 0;
+  }
+
   .docs-main {
+    /* Fill the column width. Without this, align-items: flex-start + the
+       desktop max-width:760px let docs-main size to its content (a wide
+       <pre>), overflowing the narrow viewport. width:100% constrains it to
+       the (padding-limited) column; inner <pre> blocks scroll via their
+       own overflow-x:auto. */
+    width: 100%;
+    max-width: 100%;
     padding: 1.5rem 0 3rem;
   }
 }
@@ -1187,8 +1277,114 @@ pre.astro-code code {
     grid-template-columns: 1fr 1fr;
   }
 
-  .nav-links {
-    display: none;
+  /* Mobile menu: hamburger reveals a full-screen overlay panel.
+     The header bar (logo + toggle) stays visible on top; the overlay fills
+     the viewport behind it with the same cream background, so the two read
+     as one continuous surface.
+
+     Note: we drop backdrop-filter on mobile. backdrop-filter creates a
+     containing block for position:fixed descendants, which would trap the
+     overlay inside the 56px header. An opaque bg is all we need here. */
+  .site-header {
+    background: var(--color-bg);
+    backdrop-filter: none;
+  }
+
+  .nav {
+    --nav-control-h: 40px;
+    height: 56px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .nav-toggle {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+  }
+
+  .nav-toggle-bar {
+    display: block;
+    width: 22px;
+    height: 2px;
+    margin: 0 auto;
+    background: var(--color-text);
+    border-radius: 1px;
+    transition: transform var(--transition), opacity var(--transition);
+  }
+
+  .nav-open .nav-toggle-bar:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+  }
+  .nav-open .nav-toggle-bar:nth-child(2) {
+    opacity: 0;
+  }
+  .nav-open .nav-toggle-bar:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+  }
+
+  /* Full-screen overlay: covers the viewport below the header bar. */
+  .nav-menu {
+    position: fixed;
+    inset: 0;
+    top: 56px;
+    z-index: 1;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 1rem 1.5rem 2.5rem;
+    background: var(--color-bg);
+    overflow-y: auto;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--transition), visibility var(--transition);
+  }
+
+  .nav-open .nav-menu {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Spacious, large primary links (Anthropic-style: no dividers). */
+  .nav-menu-primary {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  .nav-menu-primary a {
+    display: block;
+    padding: 1.25rem 0;
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--color-text);
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+
+  /* GitHub CTA sits right under the links - always visible, no scroll.
+     A top margin separates it from the link list. */
+  .nav-menu .nav-cta {
+    align-self: flex-start;
+    margin-top: 1.5rem;
+    padding: 0.55rem 1.5rem;
+    font-size: 0.95rem;
+  }
+
+  .nav-locale {
+    margin: 0;
+  }
+
+  /* Lock background scroll while the overlay is open. */
+  html:has(.site-header.nav-open) {
+    overflow: hidden;
   }
 
   .hero {
@@ -1197,5 +1393,25 @@ pre.astro-code code {
 
   .section {
     padding: var(--section-gap-sm) 0;
+  }
+
+  .article {
+    padding: 2.5rem 1.5rem;
+  }
+
+  .article h1 {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .container {
+    padding: 0 1.25rem;
+  }
+  .docs-page {
+    padding: 0 1.25rem;
+  }
+  .article {
+    padding: 2.5rem 1.25rem;
   }
 }

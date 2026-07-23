@@ -15,25 +15,23 @@ const packscopeHref = localizePath('/packscope', locale);
         <span class="logo-mark"><img src="/images/logo.png" alt="" width="28" height="28" /></span>
         <span class="logo-text">AwareRide</span>
       </a>
-      <p class="footer-tagline">{ui.home === '首页'
-        ? '开源探索人类感知、空间智能与身心健康。'
-        : 'Open source exploring human perception, spatial intelligence, and wellness.'}</p>
+      <p class="footer-tagline">{ui.footerTagline}</p>
     </div>
     <div>
-      <h4>{locale === 'zh' ? '链接' : 'Links'}</h4>
+      <h4>{ui.links}</h4>
       <ul class="footer-links">
         <li><a href={homeHref}>{ui.home}</a></li>
         <li><a href="https://github.com/awareride" target="_blank" rel="noopener noreferrer">GitHub</a></li>
       </ul>
     </div>
     <div>
-      <h4>{locale === 'zh' ? '项目' : 'Projects'}</h4>
+      <h4>{ui.projects}</h4>
       <ul class="footer-links">
         <li><a href={packscopeHref}>Packscope</a></li>
       </ul>
     </div>
     <div>
-      <h4>{locale === 'zh' ? '联系' : 'Connect'}</h4>
+      <h4>{ui.connect}</h4>
       <ul class="footer-links">
         <li><a href="https://github.com/awareride" target="_blank" rel="noopener noreferrer">@awareride</a></li>
         <li><a href="mailto:hello@awareride.com">hello@awareride.com</a></li>
@@ -41,6 +39,6 @@ const packscopeHref = localizePath('/packscope', locale);
     </div>
   </div>
   <div class="container footer-bottom">
-    <p>&copy; {new Date().getFullYear()} AwareRide. {locale === 'zh' ? '用心构建。' : 'Built with awareness.'}</p>
+    <p>&copy; {new Date().getFullYear()} AwareRide. {ui.builtWith}</p>
   </div>
 </footer>
