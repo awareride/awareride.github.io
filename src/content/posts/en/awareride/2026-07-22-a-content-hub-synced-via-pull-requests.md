@@ -102,4 +102,4 @@ manual deploy ships it. The content lives where it is maintained; the hub only r
 
 *Part of the series on building open.awareride.com. Previous:
 [two locales with per-page fallback](/posts/awareride/2026-07-22-two-locales-with-per-page-fallback/).
-Start at the beginning: [Rebuilding open.awareride.com on Astro](/posts/awareride/2026-07-21-rebuilding-open-awareride-on-astro/).*
+Next: [A mobile nav that does not vanish](/posts/awareride/2026-07-22-a-mobile-nav-that-does-not-vanish/).*

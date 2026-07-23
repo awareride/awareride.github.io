@@ -96,4 +96,4 @@ docs/en/legacy/
 
 *这是"构建 open.awareride.com"系列的一部分。上一篇:
 [不用 Starlight,做带逐页回退的两种语言](/zh/posts/awareride/2026-07-22-two-locales-with-per-page-fallback/)。
-从头开始读:[用 Astro 重建 open.awareride.com](/zh/posts/awareride/2026-07-21-rebuilding-open-awareride-on-astro/)。*
+下一篇:[一个不会消失的移动端导航](/zh/posts/awareride/2026-07-22-a-mobile-nav-that-does-not-vanish/)。*
