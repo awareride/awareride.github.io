@@ -435,7 +435,10 @@ pre.astro-code code {
 /* --- Cards Grid --- */
 .cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  /* min(100%, 300px) caps the column floor at the container width so cards
+     never overflow the container (and lose their outer right gap) on phones
+     narrower than 300px of content. */
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
   gap: 1.5rem;
 }
 
@@ -489,6 +492,15 @@ pre.astro-code code {
   align-items: center;
 }
 
+/* Grid items default to min-width: auto, so a <pre> with white-space: pre
+   (the terminal preview) would force its track wider than the card and
+   bleed past the card padding on narrow viewports. min-width: 0 lets the
+   track shrink so .terminal-body's overflow-x:auto can scroll instead. */
+.project-info,
+.project-preview {
+  min-width: 0;
+}
+
 .project-info h3 {
   font-size: 1.75rem;
   margin-bottom: 0.75rem;
@@ -530,6 +542,7 @@ pre.astro-code code {
   border-radius: var(--radius-lg);
   overflow: hidden;
   box-shadow: var(--shadow-lg);
+  max-width: 100%;
 }
 
 .terminal-header {
@@ -647,7 +660,10 @@ pre.astro-code code {
 /* --- Posts Grid --- */
 .posts-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  /* min(100%, 340px) keeps the track from exceeding the container on
+     phones narrower than 340px, which previously forced a 340px column
+     and clipped the bottom-right tags outside the viewport. */
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
   gap: 1.5rem;
 }
 
@@ -1146,7 +1162,7 @@ pre.astro-code code {
 
 .feature-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
   gap: 1.5rem;
   margin-top: 2rem;
 }
@@ -1169,7 +1185,7 @@ pre.astro-code code {
 /* --- Usage Section --- */
 .usage-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
   gap: 1.25rem;
 }
 
