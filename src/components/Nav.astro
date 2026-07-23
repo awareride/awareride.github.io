@@ -35,7 +35,7 @@ const packscopeHref = localizePath('/packscope', locale);
     <div class="nav-right">
       <nav class="nav-menu" id="nav-menu" aria-label="Primary">
         <ul class="nav-menu-primary">
-          <li><a href={projectsHref}>{locale === 'zh' ? '项目' : 'Projects'}</a></li>
+          <li><a href={projectsHref}>{ui.projects}</a></li>
           <li><a href={postsHref}>{ui.posts}</a></li>
           <li><a href={packscopeHref}>Packscope</a></li>
         </ul>
@@ -49,7 +49,7 @@ const packscopeHref = localizePath('/packscope', locale);
       <button
         class="nav-toggle"
         type="button"
-        aria-label={locale === 'zh' ? '切换菜单' : 'Toggle menu'}
+        aria-label={ui.toggleMenu}
         aria-expanded="false"
         aria-controls="nav-menu"
       >
