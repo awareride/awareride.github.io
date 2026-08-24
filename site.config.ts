@@ -152,4 +152,16 @@ export const products: Product[] = [
       'zh-Hans': '把 webpack、rspack、rollup、esbuild 与 Vite 的单体 JavaScript bundle 解包成可浏览、可执行的模块树。',
     },
   },
+  {
+    slug: 'astro-content-hub',
+    name: 'Astro Content Hub',
+    github: 'https://github.com/awareride/astro-content-hub',
+    badges: ['Astro', 'ContentHub'],
+    logo: { fallback: 'Hub', gradient: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)' },
+    featured: true,
+    description: {
+      en: 'The template this hub is built on — a content hub that aggregates docs and posts from many repositories.',
+      'zh-Hans': '本中心所基于的模板 —— 聚合多个仓库文档与文章的内容中心。',
+    },
+  },
 ];
