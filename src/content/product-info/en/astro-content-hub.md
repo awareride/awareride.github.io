@@ -31,11 +31,6 @@ features:
     body: "Pagefind site search, sitemap with hreflang alternates, llms.txt, RSS, and static build output that deploys to GitHub Pages or Cloudflare Pages."
   - title: "Theme per product"
     body: "Each product can override the site's color tokens for its landing and docs pages via a scoped CSS file - rebrand without touching the machinery."
-links:
-  - label: "View Source"
-    href: "https://github.com/awareride/astro-content-hub"
-  - label: "Read the Docs"
-    href: "/astro-content-hub/docs"
 sections:
   - type: hero
   - type: highlights
