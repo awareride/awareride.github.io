@@ -7,6 +7,12 @@ author: "AwareRide"
 source: "https://github.com/awareride/awareride.github.io"
 ---
 
+> **Update (2026-08):** open.awareride.com has since been rebuilt on the
+> [astro-content-hub](https://github.com/awareride/astro-content-hub) template —
+> universal `[locale]` routes, a data-driven product registry, per-product landing
+> pages, and site search. The series below documents how the first Astro site was
+> built; the architecture it describes has been superseded.
+
 ## It started as one HTML file
 
 open.awareride.com began life as a single static HTML page - a logo, a tagline, a favicon I could not

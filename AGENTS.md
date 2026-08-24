@@ -60,56 +60,76 @@ When in doubt, ask. "I think this is safe" is not authorization.
 
 AwareRide's website is a static site built with **Astro 7** (static output),
 deployed to GitHub Pages and Cloudflare Pages from `main` via GitHub Actions.
+It is rebuilt on the [astro-content-hub](https://github.com/awareride/astro-content-hub)
+template: universal `[locale]` routes, a data-driven product registry, config-
+driven Nav/Footer, per-product landing pages, site search, `llms.txt`, RSS and
+a sitemap. `astro-content-hub` itself stays a separate template repo; this
+repo is the live site based on it.
 
 ### Tech stack
 - **Framework**: Astro (`output: 'static'`), TypeScript, no UI framework.
 - **Styling**: a single global stylesheet `src/styles/global.css` using CSS
-  custom properties. No CSS-in-JS, no Tailwind. Component-specific styles live
-  in scoped `<style>` blocks, but shared typography (e.g. `.prose`) lives in
-  `global.css` so it reliably applies to Astro `<Content />` output.
-- **Markdown**: Shiki with the `css-variables` theme.
+  custom properties. No CSS-in-JS, no Tailwind. Brand tokens live in
+  `src/styles/theme.css`; per-product overrides go in
+  `src/styles/product-themes/<slug>.css`.
+- **Markdown**: Shiki with the `css-variables` theme, rendered via Sätteri
+  (Astro 7) with a relative-`.md`-link rewriter and heading-id plugins.
+- **Search**: Pagefind, indexed at build time into `public/pagefind`.
 - **Node**: 22 (see deploy workflow). Use `npm`, not `pnpm`/`yarn`.
 
 ### Directory layout
 ```
+site.config.ts      Products registry + site block (nav/footer) - the single
+                    place to add a product. Data, not code.
 src/
-  components/      Astro components (Layout, Nav, Footer, DocsLayout, PostCard)
-  content/         Markdown collections (see "Content collections" below)
-  content.config.ts  Collection schemas (zod) + glob loaders
-  lib/             Shared helpers (e.g. docs.ts — sidebar nav builder)
-  pages/           File-based routes (.astro)
-  styles/global.css
-.astro/            Generated types (do not edit)
-.github/workflows/ CI: build + deploy to GH Pages & Cloudflare Pages
+  components/       Astro components (Layout, Nav, Footer, DocsLayout, PostCard,
+                    SearchModal, landing-sections/*, product-landing/*)
+  config/copy.ts    Instance copy: siteName, UI strings, home/org/product copy
+  content/          Markdown collections (posts/, docs/<product>/, product-info/)
+  content.config.ts Collection schemas (zod) + glob loaders (from site.config.ts)
+  lib/              Shared helpers (i18n, content, docs, llms, feed, search, ...)
+  pages/            Universal routes: [locale]/*, [product]/*, posts/*, 404, ...
+  styles/           global.css, theme.css (brand), product-themes/
+scripts/            Pagefind helpers (ensure/sync public/pagefind)
+skills/site-content/  Hub-side content validator (npm run validate:content)
+tests/              Vitest unit suite (pure logic modules)
 awareride-content-sync/  Content-sync skill for external projects; sync
                          workflow templates live in its templates/
 public/            Static assets served as-is (favicon, images, CNAME)
 ```
 
 ### Pages & routing
-- `/` — landing page (`src/pages/index.astro`).
-- `/posts`, `/posts/[...slug]` — blog listing + catch-all article route.
-- `/packscope` — product page.
-- `/packscope/docs`, `/packscope/docs/[...slug]` — docs index + catch-all route
-  rendering Markdown from the `packscopeDocs` collection.
+- `/` and `/zh-Hans/` — landing page (en + localized), org front door.
+- `/posts`, `/posts/[...slug]` and `/[locale]/posts/...` — blog listing +
+  catch-all article route (universal locale routes; no per-locale files).
+- `/<product>` and `/[locale]/<product>` — product landing pages, driven by
+  the `products` registry (custom override → `product-info` → generic).
+- `/<product>/docs` and `/[...]` — docs index + catch-all per product.
+- `/products`, `/llms.txt`, `/llms-full.txt`, `/rss.xml`, `/sitemap-index.xml`,
+  `/robots.txt`, `/404`.
 
 ### Layout composition
 - `Layout.astro` owns the document shell (`<html>/<head>/<body>`, fonts, meta,
-  OG tags). Every page should compose it — do **not** hand-write a second
-  document shell.
+  OG tags, hreflang, optional per-product theme). Every page should compose it
+  — do **not** hand-write a second document shell.
 - `Nav.astro` (sticky header) and `Footer.astro` are composed inside `Layout`
-  by pages that need them.
+  by pages that need them. They read nav/footer links from `site.config.ts`
+  and infer locale from the URL pathname.
 - `DocsLayout.astro` is a content-region layout: it composes `Layout` +
   `Nav` + `Footer` and adds a sidebar + `.prose` content area. Do not duplicate
   the document shell inside it.
 
 ### Content collections
-Defined in `src/content.config.ts` with zod schemas:
-- `posts` — `src/content/posts/**/*.md`. Schema: `title`, `date`, `description`,
-  `tags`, `author?`, `source?`, `draft?`. Nested dirs are supported (id is the
-  path relative to the collection base).
-- `packscopeDocs` — `src/content/docs/packscope/**/*.md`. Schema: `title`,
-  `description?`, `order` (controls sidebar sort, `index` always first).
+Defined in `src/content.config.ts` with zod schemas, generated from
+`site.config.ts`:
+- `posts<Locale>` — `src/content/posts/<locale>/**/*.md`. Schema: `title`,
+  `date`, `description`, `tags`, `author?`, `source?`, `draft?`. Nested dirs
+  are supported (id is the path relative to the collection base).
+- `<product>Docs<Locale>` — `src/content/docs/<product>/<locale>/**/*.md`.
+  Schema: `title`, `description?`, `order` (controls sidebar sort, `index`
+  always first).
+- `productInfo<Locale>` — `src/content/product-info/<locale>/<slug>.md`,
+  the data-driven product landing.
 
 Markdown is rendered via `render(entry)` from `astro:content`; pages pass
 `<Content />` into a `.prose` container so shared typography applies.
@@ -123,11 +143,15 @@ Markdown is rendered via `render(entry)` from `astro:content`; pages pass
   rather than writing fresh scoped styles.
 
 ### Build & deploy
-- `npm run dev` — local dev server.
-- `npm run build` — runs `astro check` (type check) then builds to `dist/`.
+- `npm run dev` — local dev server (ensures `public/pagefind` exists).
+- `npm run build` — runs `astro check` (type check), builds to `dist/`, then
+  indexes search (pagefind → `public/pagefind`).
+- `npm run validate:content` — hub-side cross-file content gate.
+- `npm test` — Vitest unit suite.
 - `.github/workflows/deploy.yml` is triggered manually (workflow_dispatch):
-  it builds, then deploys `dist/` to GitHub Pages and (via wrangler) Cloudflare
-  Pages. It no longer runs automatically on push to `main`.
+  it validates content, builds, then deploys `dist/` to GitHub Pages and
+  (via wrangler) Cloudflare Pages. It no longer runs automatically on push
+  to `main`.
 - The site domain is `open.awareride.com` (`public/CNAME`).
 
 ## Coding conventions
@@ -141,6 +165,8 @@ Markdown is rendered via `render(entry)` from `astro:content`; pages pass
 
 ## Verifying your work
 Before declaring a task done:
-1. Run `npm run build` and confirm it passes with no errors.
-2. Check the affected route's rendered HTML in `dist/` if behavior is uncertain.
-3. Summarize what changed, what to review, and any follow-ups for the human.
+1. Run `npm run validate:content` (0 errors, 0 warnings) and `npm test` (all
+   green).
+2. Run `npm run build` and confirm it passes with no errors.
+3. Check the affected route's rendered HTML in `dist/` if behavior is uncertain.
+4. Summarize what changed, what to review, and any follow-ups for the human.

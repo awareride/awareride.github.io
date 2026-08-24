@@ -7,7 +7,7 @@
 //
 // Opens on hover/focus-within (desktop, progressive enhancement) and on click
 // via the .open class (primary interaction, required for touch devices).
-import { locales, localeLabel, type Locale } from '../lib/i18n';
+import { locales, localeLabel, withBase, type Locale } from '../lib/i18n';
 
 export interface Props {
   alternates?: Partial<Record<Locale, string>>;
@@ -15,8 +15,10 @@ export interface Props {
 }
 
 const { alternates = {}, current } = Astro.props;
-const available = locales.filter((l) => alternates[l]);
-const hidden = available.length <= 1;
+const options = locales
+  .map((l) => ({ l, href: alternates[l] }))
+  .filter((o): o is { l: Locale; href: string } => o.href !== undefined);
+const hidden = options.length <= 1;
 ---
 
 {!hidden && (
@@ -33,18 +35,18 @@ const hidden = available.length <= 1;
           <circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/>
         </svg>
       </span>
-      <span>{localeLabel(current)}</span>
+      <span>{localeLabel[current]}</span>
     </button>
     <ul class="locale-switcher-menu" id="locale-switcher-menu" role="menu">
-      {available.map((l) => (
+      {options.map(({ l, href }) => (
         <li role="none">
           <a
-            href={alternates[l]}
+            href={withBase(href)}
             role="menuitem"
             class:list={['locale-switcher-item', { active: l === current }]}
             hreflang={l}
           >
-            {localeLabel(l)}
+            {localeLabel[l]}
           </a>
         </li>
       ))}

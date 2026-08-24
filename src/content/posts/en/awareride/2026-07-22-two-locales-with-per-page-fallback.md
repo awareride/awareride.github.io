@@ -19,13 +19,13 @@ myself. It is less than 200 lines of helpers.
 
 ## Locale in front
 
-The URL decision: `/zh/packscope/docs/` or `/packscope/docs/zh/`? I went with the locale in front.
+The URL decision: `/zh-Hans/packscope/docs/` or `/packscope/docs/zh-Hans/`? I went with the locale in front.
 `en` is the default locale and gets no prefix; every other locale lives under `/<locale>/...`:
 
 - `https://open.awareride.com/packscope/docs/getting-started` - English
-- `https://open.awareride.com/zh/packscope/docs/getting-started` - Chinese
+- `https://open.awareride.com/zh-Hans/packscope/docs/getting-started` - Chinese
 
-The whole site mirrors that: `/zh/`, `/zh/packscope/`, `/zh/posts/`. One rule, applied everywhere.
+The whole site mirrors that: `/zh-Hans/`, `/zh-Hans/packscope/`, `/zh-Hans/posts/`. One rule, applied everywhere.
 
 ## Fallback that is not a redirect
 
@@ -41,7 +41,7 @@ shell, with a visible notice:
 > 此页暂无中文翻译,以下显示英文原文。
 
 You can ship English first and translate incrementally. The site never breaks; it just shows English
-with a notice where Chinese is missing. Post cards on `/zh/posts/` even carry an `EN` badge on
+with a notice where Chinese is missing. Post cards on `/zh-Hans/posts/` even carry an `EN` badge on
 fallback entries so readers know before they click.
 
 ## No per-locale boilerplate

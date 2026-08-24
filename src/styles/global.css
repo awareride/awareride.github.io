@@ -1,32 +1,17 @@
+@import './theme.css';
+@import './product-themes/index.css';
+
 /* ============================================
-   AwareRide — Global Styles
-   Anthropic-inspired: clean, bold, minimal
+   astro-content-hub - Global Styles
+   Clean, bold, minimal
+   --------------------------------------------
+   Brand tokens (colors, accent, fonts, dark theme) live in theme.css
+   and are imported above. This file holds structural tokens (spacing,
+   radius, shadows, transitions) and all component styles.
    ============================================ */
 
-/* --- CSS Custom Properties --- */
+/* --- CSS Custom Properties (structural only) --- */
 :root {
-  /* Colors */
-  --color-bg: #faf9f7;
-  --color-bg-alt: #f2f0eb;
-  --color-bg-dark: #141413;
-  --color-surface: #ffffff;
-  --color-border: #e6e4df;
-  --color-border-light: #f0ede7;
-
-  /* Text */
-  --color-text: #141413;
-  --color-text-secondary: #6b6860;
-  --color-text-muted: #99968e;
-
-  /* Accent */
-  --color-accent: #d4a853;
-  --color-accent-hover: #c09940;
-  --color-accent-subtle: rgba(212, 168, 83, 0.12);
-
-  /* Typography */
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
-
   /* Spacing */
   --container-max: 1200px;
   --section-gap: 6rem;
@@ -58,8 +43,18 @@
 html {
   font-size: 16px;
   scroll-behavior: smooth;
+  /* Offset anchor jumps (TOC links, sidebar links, in-page #hrefs) below the
+     sticky header (60px) plus a small breathing gap. Without this, the target
+     heading lands flush under the header and is hidden. 80px also matches the
+     TOC IntersectionObserver rootMargin, so the highlighted entry lines up
+     with where the page actually lands. */
+  scroll-padding-top: 80px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Remove the blue/gray highlight flash that Android Chrome paints on the
+     pressed element when tapping (press state). iOS Safari does not paint
+     one by default. */
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -130,7 +125,7 @@ code {
 
 pre.astro-code {
   background: var(--color-bg-dark) !important;
-  color: #f0ede7 !important;
+  color: var(--color-on-dark) !important;
   padding: 1.25rem 1.5rem;
   border-radius: var(--radius);
   overflow-x: auto;
@@ -164,7 +159,7 @@ pre.astro-code code {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(250, 249, 247, 0.85);
+  background: color-mix(in srgb, var(--color-bg) 85%, transparent);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--color-border-light);
 }
@@ -192,11 +187,20 @@ pre.astro-code code {
 }
 
 /* Right cluster of the header: nav menu (desktop inline / mobile overlay),
-   locale switcher, and hamburger. They share a single flex gap. */
+   search, locale switcher, theme toggle, and hamburger. They share a single
+   flex gap. */
 .nav-right {
   display: flex;
   align-items: center;
   gap: 1.5rem;
+}
+
+/* Search + locale + theme sit together; the search trigger collapses to an
+   icon-only button before the locale switcher does, so the two never collide. */
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .nav-menu {
@@ -222,6 +226,117 @@ pre.astro-code code {
   color: var(--color-text);
 }
 
+.nav-menu-primary a.active {
+  color: var(--color-text);
+}
+
+/* --- Products dropdown (desktop) --- */
+.nav-menu-primary .nav-dropdown {
+  position: relative;
+}
+
+.nav-menu-primary .nav-dropdown-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  transition: color var(--transition);
+}
+
+.nav-menu-primary .nav-dropdown-trigger:hover,
+.nav-menu-primary .nav-dropdown.nav-dropdown-active .nav-dropdown-trigger,
+.nav-menu-primary .nav-dropdown-trigger[aria-expanded='true'] {
+  color: var(--color-text);
+}
+
+.nav-menu-primary .nav-dropdown-caret {
+  transition: transform var(--transition);
+}
+
+.nav-menu-primary .nav-dropdown:hover .nav-dropdown-caret,
+.nav-menu-primary .nav-dropdown:focus-within .nav-dropdown-caret,
+.nav-menu-primary .nav-dropdown.nav-dropdown-open .nav-dropdown-caret {
+  transform: rotate(180deg);
+}
+
+.nav-menu-primary .nav-dropdown-panel {
+  position: absolute;
+  top: calc(100% + 0.75rem);
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 300px;
+  padding: 0.5rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--transition), visibility var(--transition);
+}
+
+.nav-menu-primary .nav-dropdown:hover .nav-dropdown-panel,
+.nav-menu-primary .nav-dropdown:focus-within .nav-dropdown-panel,
+.nav-menu-primary .nav-dropdown.nav-dropdown-open .nav-dropdown-panel {
+  opacity: 1;
+  visibility: visible;
+}
+/* JS-open state wins over the :hover rule above: on touch devices the tap
+   that opened the panel is followed by a synthetic mouseover, and :hover
+   would re-hide the panel (blank until a second tap). Both rules have equal
+   specificity, so the later one in the source wins. */
+.nav-menu-primary .nav-dropdown[data-state='open'] .nav-dropdown-panel {
+  opacity: 1;
+  visibility: visible;
+}
+
+.nav-menu-primary .nav-dropdown-item {
+  display: block;
+  padding: 0.55rem 0.75rem;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+}
+
+.nav-menu-primary .nav-dropdown-item:hover {
+  background: var(--color-accent-subtle);
+}
+
+.nav-menu-primary .nav-dropdown-name {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.nav-menu-primary .nav-dropdown-desc {
+  display: block;
+  margin-top: 0.1rem;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+.nav-menu-primary .nav-dropdown-all {
+  display: block;
+  margin-top: 0.35rem;
+  padding: 0.6rem 0.75rem 0.4rem;
+  border-top: 1px solid var(--color-border-light);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  border-radius: var(--radius-sm);
+}
+
+.nav-menu-primary .nav-dropdown-all:hover {
+  color: var(--color-text);
+}
+
 .nav-cta {
   display: inline-flex;
   align-items: center;
@@ -230,7 +345,7 @@ pre.astro-code code {
   padding: 0.4rem 1rem;
   border-radius: 100px;
   background: var(--color-bg-dark);
-  color: #fff !important;
+  color: var(--color-on-dark) !important;
   font-size: 0.85rem;
   font-weight: 600;
   transition: opacity var(--transition);
@@ -327,11 +442,72 @@ pre.astro-code code {
   background: var(--color-accent-subtle);
 }
 
+@media (max-width: 960px) {
+  /* Mid-size: the nav menu still fits, but the search trigger's label + kbd
+     (~130px) would push the right cluster past the viewport. Collapse the
+     trigger to icon-only here; it expands again on very wide screens. */
+  .search-open-label,
+  .search-open-kbd {
+    display: none;
+  }
+  .search-open {
+    padding: 0.4rem 0.6rem;
+  }
+}
+
+/* Lock background scroll while the search modal is open (SearchModal adds
+   .search-open-lock to <html> on open, removes on close). Stops the page
+   behind the dialog from scrolling — including wheel chaining past the end
+   of the results list. */
+html.search-open-lock,
+html.search-open-lock body {
+  overflow: hidden;
+}
+
+/* --- Theme toggle (in nav) --- */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--nav-control-h);
+  width: calc(var(--nav-control-h) + 0.4rem);
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 100px;
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: color var(--transition), border-color var(--transition);
+}
+
+.theme-toggle:hover {
+  color: var(--color-text);
+  border-color: var(--color-text-muted);
+}
+
+.theme-toggle .icon {
+  display: none;
+  align-items: center;
+}
+
+/* Show moon in light mode, sun in dark mode (CSS-driven, no flash). */
+:root[data-theme='light'] .theme-toggle .icon-moon,
+:root:not([data-theme='dark']) .theme-toggle .icon-moon {
+  display: inline-flex;
+}
+:root[data-theme='dark'] .theme-toggle .icon-sun {
+  display: inline-flex;
+}
+
 /* --- Hero --- */
 .hero {
   padding: 5rem 0 var(--section-gap);
   text-align: center;
   position: relative;
+  /* Clip the decorative hero-glow: it is a 600px-wide absolutely positioned
+     element centered with translateX(-50%), which would stick out past the
+     right edge of a narrow phone viewport and cause horizontal scrolling. */
+  overflow: hidden;
 }
 
 .hero-glow {
@@ -359,7 +535,7 @@ pre.astro-code code {
 }
 
 .gradient-text {
-  background: linear-gradient(135deg, var(--color-accent) 0%, #b8860b 50%, #8b6914 100%);
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-2) 50%, var(--color-accent-3) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -396,7 +572,7 @@ pre.astro-code code {
 
 .btn-primary {
   background: var(--color-bg-dark);
-  color: #fff;
+  color: var(--color-on-dark);
 }
 
 .btn-primary:hover {
@@ -430,6 +606,23 @@ pre.astro-code code {
   max-width: 600px;
   margin: 0.75rem auto 0;
   font-size: 1.05rem;
+}
+
+/* --- Org mission (front door) ---
+   Reuses .section-header; the lead is a bit roomier and the link row centers
+   below it. All tokens come from global.css - no new colors here. */
+.mission-lead {
+  max-width: 720px;
+  font-size: 1.1rem;
+  line-height: 1.8;
+}
+
+.mission-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
 /* --- Cards Grid --- */
@@ -480,40 +673,97 @@ pre.astro-code code {
   font-size: 0.95rem;
 }
 
-/* --- Project Card --- */
-.project-card {
+/* --- Product Cards --- */
+.products-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 3rem;
+  /* min(100%, 280px) caps the column floor at the container width so cards
+     never overflow the container on narrow phones, matching the other grids. */
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: 1.5rem;
+}
+
+.project-card {
   background: var(--color-surface);
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-lg);
-  padding: 2.5rem;
-  align-items: center;
+  padding: 2rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  transition: border-color var(--transition), transform var(--transition), box-shadow var(--transition);
 }
 
-/* Grid items default to min-width: auto, so a <pre> with white-space: pre
-   (the terminal preview) would force its track wider than the card and
-   bleed past the card padding on narrow viewports. min-width: 0 lets the
-   track shrink so .terminal-body's overflow-x:auto can scroll instead. */
-.project-info,
-.project-preview {
-  min-width: 0;
+.project-card:hover {
+  border-color: var(--color-accent);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Fill card height so actions can sit flush at the bottom regardless of
+   description length; the desc line-clamps so cards stay even. */
+.project-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+/* Stretched link: the product name <a> covers the whole card (PostCard
+   pattern) so the card is clickable while the GitHub button below stays
+   independently clickable via position:relative + z-index:1. */
+.project-card-link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-lg);
+}
+
+.project-card h3 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.project-card .project-actions {
+  position: relative;
+  z-index: 1;
+  margin-top: auto;
+  padding-top: 1rem;
+}
+
+.project-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.project-logo .media {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
 }
 
 .project-info h3 {
-  font-size: 1.75rem;
-  margin-bottom: 0.75rem;
+  font-size: 1.35rem;
+  margin-bottom: 0;
 }
 
-.project-info p {
-  margin-bottom: 1.5rem;
+.project-desc {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  margin-bottom: 0.75rem;
+  /* Cap description height so cards with long copy don't outgrow their
+     siblings; ellipsis on overflow. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .project-meta {
   display: flex;
   gap: 0.5rem;
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
 }
 
 .badge {
@@ -522,7 +772,7 @@ pre.astro-code code {
   padding: 0.2rem 0.7rem;
   border-radius: 100px;
   background: var(--color-bg-dark);
-  color: #fff;
+  color: var(--color-on-dark);
 }
 
 .badge-soft {
@@ -534,6 +784,7 @@ pre.astro-code code {
   display: flex;
   gap: 0.75rem;
   flex-wrap: wrap;
+  margin-top: 1.25rem;
 }
 
 /* --- Terminal Preview --- */
@@ -565,7 +816,7 @@ pre.astro-code code {
 
 .terminal-body {
   padding: 1.25rem 1.5rem;
-  color: #f0ede7;
+  color: var(--color-on-dark);
   font-family: var(--font-mono);
   font-size: 0.8rem;
   line-height: 1.8;
@@ -617,11 +868,11 @@ pre.astro-code code {
   padding: 3rem 2rem;
   background: var(--color-bg-dark);
   border-radius: var(--radius-lg);
-  color: #fff;
+  color: var(--color-on-dark);
 }
 
 .cta-box h2 {
-  color: #fff;
+  color: var(--color-on-dark);
   margin-bottom: 0.75rem;
 }
 
@@ -650,7 +901,7 @@ pre.astro-code code {
 .cta-box .btn-secondary {
   background: transparent;
   border-color: rgba(255,255,255,0.2);
-  color: #fff;
+  color: var(--color-on-dark);
 }
 
 .cta-box .btn-secondary:hover {
@@ -677,10 +928,26 @@ pre.astro-code code {
   position: relative;
 }
 
+/* Stretched link: the title <a> covers the whole card so the entire card is
+   clickable, while still allowing the tag links below to be independently
+   clicked (they sit above via position:relative + z-index:1). */
+.post-card-link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-lg);
+}
+
+.post-card h3 a {
+  color: inherit;
+  text-decoration: none;
+}
+
 .post-card-source {
   position: absolute;
   top: 0.75rem;
   right: 0.75rem;
+  z-index: 1;
   font-size: 0.65rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -736,6 +1003,13 @@ pre.astro-code code {
   flex-wrap: wrap;
 }
 
+/* Tag links must sit above the stretched title link to stay independently
+   clickable. */
+.post-card-tags .tag {
+  position: relative;
+  z-index: 1;
+}
+
 .tag {
   font-size: 0.7rem;
   font-weight: 600;
@@ -743,6 +1017,45 @@ pre.astro-code code {
   border-radius: 100px;
   background: var(--color-bg-alt);
   color: var(--color-text-muted);
+  transition: background var(--transition), color var(--transition);
+}
+
+/* Clickable tags (PostCard, article header, tag chip row). */
+a.tag {
+  text-decoration: none;
+  cursor: pointer;
+}
+
+a.tag:hover {
+  background: var(--color-accent-subtle);
+  color: var(--color-accent-hover);
+}
+
+/* Tag chip row on the posts listing. */
+.posts-tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.tag-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  padding: 0.3rem 0.75rem;
+}
+
+.tag-count {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0 0.35rem;
+  border-radius: 100px;
+  background: var(--color-border);
+  color: var(--color-text-secondary);
 }
 
 /* --- Article (single post) --- */
@@ -837,6 +1150,35 @@ pre.astro-code code {
   color: var(--color-text);
 }
 
+/* Heading anchor links (# beside each heading). Injected client-side; hidden
+   by default, revealed on heading hover. h1 (page title) gets none. */
+.prose h2,
+.prose h3,
+.prose h4 {
+  position: relative;
+}
+
+.heading-link {
+  position: absolute;
+  left: -1.25em;
+  opacity: 0;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  font-weight: 400;
+  transition: opacity var(--transition), color var(--transition);
+}
+
+.prose h2:hover .heading-link,
+.prose h3:hover .heading-link,
+.prose h4:hover .heading-link,
+.heading-link:focus-visible {
+  opacity: 1;
+}
+
+.heading-link:hover {
+  color: var(--color-accent-hover);
+}
+
 .prose p {
   margin-bottom: 1.25rem;
   color: var(--color-text-secondary);
@@ -893,7 +1235,7 @@ pre.astro-code code {
 .prose pre code {
   background: none;
   padding: 0;
-  color: #e0dcd0;
+  color: var(--color-on-dark);
   font-size: 0.85rem;
 }
 
@@ -995,9 +1337,16 @@ pre.astro-code code {
 .docs-main {
   flex: 1;
   min-width: 0;
+  display: flex;
+  gap: 2rem;
+  padding: 2.5rem 0 5rem;
+}
+
+.docs-content {
+  flex: 1;
+  min-width: 0;
   max-width: 760px;
   margin: 0 auto;
-  padding: 2.5rem 0 5rem;
 }
 
 .docs-breadcrumb {
@@ -1015,9 +1364,174 @@ pre.astro-code code {
   color: var(--color-text);
 }
 
+/* --- Table of contents (right rail) --- */
+/* Hidden by default; shown on wide screens via min-width media query below. */
+.docs-toc {
+  display: none;
+  width: 220px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 80px;
+  align-self: flex-start;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+}
+
+.docs-toc-title {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+}
+
+.docs-toc-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-left: 2px solid var(--color-border-light);
+}
+
+.docs-toc-item {
+  margin: 0;
+}
+
+.docs-toc-item a {
+  display: block;
+  padding: 0.25rem 0 0.25rem 0.85rem;
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  border-left: 2px solid transparent;
+  margin-left: -2px;
+  transition: color var(--transition), border-color var(--transition);
+  line-height: 1.4;
+}
+
+.docs-toc-item.depth-3 a {
+  padding-left: 1.7rem;
+  font-size: 0.78rem;
+}
+
+.docs-toc-item a:hover {
+  color: var(--color-text);
+}
+
+.docs-toc-item a.active {
+  color: var(--color-accent-hover);
+  border-left-color: var(--color-accent);
+  font-weight: 500;
+}
+
+/* --- Prev/next docs pagination --- */
+.docs-prev-next {
+  display: flex;
+  gap: 1rem;
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-border-light);
+}
+
+.docs-prev-next-item {
+  flex: 1;
+  min-width: 0;
+}
+
+.docs-prev-next-item:not(.docs-prev):not(.docs-next) {
+  /* empty spacer keeps the layout balanced when only one side exists */
+}
+
+a.docs-prev-next-item {
+  display: block;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  transition: border-color var(--transition), background var(--transition);
+}
+
+a.docs-prev-next-item:hover {
+  border-color: var(--color-text-muted);
+  background: var(--color-bg-alt);
+}
+
+.docs-next {
+  text-align: right;
+}
+
+.docs-prev-next-label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0.15rem;
+}
+
+.docs-prev-next-title {
+  display: block;
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* --- Copy-code button --- */
+.prose pre {
+  position: relative;
+}
+
+.copy-code-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.55rem;
+  font-size: 0.72rem;
+  font-family: var(--font-sans);
+  color: var(--color-on-dark);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--transition), background var(--transition);
+}
+
+.prose pre:hover .copy-code-btn,
+.copy-code-btn:focus-visible {
+  opacity: 1;
+}
+
+.copy-code-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.copy-code-btn.copied {
+  opacity: 1;
+  color: #6fcf6f;
+}
+
 /* Mobile docs sidebar: collapses into a disclosure above the content. */
 .docs-nav-toggle {
   display: none; /* shown only on mobile */
+}
+
+/* Show the TOC right rail only on wide screens. The 240px sidebar + 760px
+   content already fill the 1200px container, so the rail needs room. */
+@media (min-width: 1180px) {
+  .docs-toc {
+    display: block;
+  }
+  /* When the TOC rail is visible, .docs-main is full-width flex (no longer
+     the centered 760px column it was without a TOC), so .docs-content's
+     flex:1 grows flush against the sidebar border. Add a left gap that matches
+     the 2rem gap between content and TOC, restoring the breathing room the
+     pre-TOC centering used to provide. */
+  .docs-main {
+    padding-left: 2rem;
+  }
 }
 
 @media (max-width: 768px) {
@@ -1143,6 +1657,30 @@ pre.astro-code code {
 .product-hero {
   padding: 4rem 0 3rem;
   text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.product-hero .hero-glow {
+  position: absolute;
+  top: -25%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 640px;
+  height: 480px;
+  background: radial-gradient(ellipse at center, rgba(212,168,83,0.14) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* Second glow in the deeper gold (accent-2) so both layers stay within the
+   single accent family - no contrasting hue. */
+.product-hero .hero-glow-2 {
+  top: -10%;
+  left: 30%;
+  transform: translateX(-50%);
+  width: 520px;
+  height: 420px;
+  background: radial-gradient(ellipse at center, rgba(184,134,11,0.12) 0%, transparent 70%);
 }
 
 .product-hero h1 {
@@ -1158,6 +1696,78 @@ pre.astro-code code {
   max-width: 680px;
   margin: 2rem auto 0;
   text-align: left;
+}
+
+/* --- Product landing: highlights + install + overview (auto-generated from product-info) --- */
+/* Compact badge variant (default): inline label/value pairs, no cards -
+   a trust strip that continues the hero. */
+.highlight-badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem 1.5rem;
+}
+
+.highlight-badge {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.35rem 1rem;
+  border-radius: 100px;
+  background: var(--color-accent-subtle);
+}
+
+.highlight-badge-value {
+  font-weight: 700;
+  color: var(--color-accent);
+  font-size: 0.95rem;
+}
+
+.highlight-badge-label {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+}
+
+/* Card variant: the small bordered cards (rich). */
+.product-highlights {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr));
+  gap: 1rem;
+}
+
+.product-highlight {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  text-align: center;
+}
+
+.product-highlight-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--color-text);
+  letter-spacing: -0.02em;
+}
+
+.product-highlight-label {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 0.25rem;
+}
+
+/* Centered install snippet terminal on an auto-generated landing. */
+.product-install-terminal {
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+/* Curated overview body (rendered Markdown) on an auto-generated landing. */
+.product-overview {
+  max-width: 760px;
+  margin: 0 auto;
 }
 
 .feature-grid {
@@ -1181,6 +1791,340 @@ pre.astro-code code {
 .feature-card p {
   font-size: 0.9rem;
 }
+
+/* Bento layout (Linear/Notion style): the lead card spans two columns and
+   gets an accent treatment (larger icon, bigger title, more air), while the
+   sibling cards stay compact - a 1-large + 2-small composition. Falls back
+   to a single column on phones. */
+.feature-grid--bento {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.feature-card--wide {
+  grid-column: span 2;
+}
+
+.feature-card--lead {
+  padding: 2.5rem;
+  border-color: var(--color-accent-subtle);
+  background: linear-gradient(180deg, var(--color-surface) 0%, var(--color-accent-subtle) 100%);
+}
+
+.feature-card--lead h3 {
+  font-size: 1.4rem;
+  margin-bottom: 0.75rem;
+}
+
+.feature-card--lead p {
+  font-size: 1rem;
+  line-height: 1.7;
+  max-width: 46ch;
+}
+
+.card-icon--lg {
+  width: 56px;
+  height: 56px;
+}
+
+.card-icon--lg svg {
+  width: 28px;
+  height: 28px;
+}
+
+/* Feature card thumbnail (image variant): a media chip above the title,
+   sized by the card - 64px small cards, 96px bento lead. */
+.feature-card .media {
+  margin-bottom: 1.25rem;
+}
+
+/* Full-card background variant (image with cover: true): the media fills
+   the card as a background layer; text sits above on a subtle scrim. */
+.feature-card--cover {
+  position: relative;
+  overflow: hidden;
+  border-color: transparent;
+}
+
+.feature-card-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.feature-card-bg .media {
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 0;
+  margin: 0;
+}
+
+.feature-card--cover h3,
+.feature-card--cover p {
+  position: relative;
+  z-index: 1;
+}
+
+.feature-card--cover h3 {
+  color: var(--color-on-dark);
+}
+
+.feature-card--cover p {
+  color: var(--color-text-secondary);
+}
+
+@media (max-width: 900px) {
+  .feature-grid--bento {
+    grid-template-columns: 1fr;
+  }
+  .feature-card--wide {
+    grid-column: auto;
+  }
+}
+/* --- Landing stats (Linear-style large numbers) ---
+   Distinct from the small bordered .product-highlight cards: a row of big
+   gradient numbers separated by thin dividers, alternating on the alt bg.
+   Uses the brand gold gradient (single accent family, matching the theme). */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+  gap: 2rem 1.5rem;
+}
+
+.stats-item {
+  text-align: center;
+  padding: 0 1.5rem;
+  border-left: 1px solid var(--color-border);
+}
+
+.stats-item:first-child {
+  border-left: none;
+}
+
+.stats-value {
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-2) 50%, var(--color-accent-3) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.stats-label {
+  margin-top: 0.35rem;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* Stats collapse the divider when the grid wraps to one column. */
+@media (max-width: 640px) {
+  .stats-item {
+    border-left: none;
+    border-top: 1px solid var(--color-border);
+    padding: 1rem 0 0;
+  }
+  .stats-item:first-child {
+    border-top: none;
+    padding-top: 0;
+  }
+}
+/* --- Landing testimonials (social proof) --- */
+/* Default: even grid. layout: masonry opts into the CSS columns waterfall. */
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: 1.5rem;
+}
+
+.testimonials-grid--masonry {
+  display: block;
+  columns: 2;
+  column-gap: 1.5rem;
+}
+
+@media (min-width: 1100px) {
+  .testimonials-grid--masonry {
+    columns: 3;
+  }
+}
+
+/* Phones: one full-width column. Below ~640px of viewport (minus container
+   padding) two masonry columns leave ~140px cards - quote text wraps after
+   almost every word and the author row (avatar + name) overflows the card.
+   Matches the other grids' single-column mobile convention. */
+@media (max-width: 640px) {
+  .testimonials-grid--masonry {
+    columns: 1;
+  }
+}
+
+.testimonials-grid--masonry .testimonial-card {
+  margin: 0 0 1.5rem;
+  break-inside: avoid;
+}
+
+.testimonial-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius);
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  position: relative;
+  /* Let the card shrink inside grid/multicol tracks and wrap long
+     unbreakable tokens (URLs, handles) instead of overflowing. */
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+/* Large decorative quote glyph, gold on subtle, behind the quote text. */
+.testimonial-card::before {
+  content: '\201C';
+  position: absolute;
+  top: -0.9rem;
+  left: 1.1rem;
+  font-size: 4.5rem;
+  line-height: 1;
+  color: var(--color-accent-subtle);
+  font-family: var(--font-serif, Georgia, serif);
+  pointer-events: none;
+}
+
+.testimonial-quote {
+  font-size: 1rem;
+  line-height: 1.7;
+  margin: 0;
+  flex: 1;
+  position: relative;
+}
+
+.testimonial-author {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.testimonial-author-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  /* Shrink to fit beside the fixed-size avatar and break long names /
+     handles mid-word rather than pushing past the card's right border. */
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.testimonial-name {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.testimonial-company {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.testimonial-role {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+/* Rating stars, gold to match the accent family. */
+.testimonial-rating {
+  margin: 0;
+  color: var(--color-accent);
+  letter-spacing: 0.15em;
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+/* --- Landing docs preview (content proof) --- */
+.docs-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: 1.25rem;
+}
+
+.docs-preview-card {
+  display: block;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  text-decoration: none;
+  transition: border-color var(--transition), transform var(--transition);
+}
+
+.docs-preview-card:hover {
+  border-color: var(--color-accent);
+  transform: translateY(-2px);
+}
+
+.docs-preview-card h3 {
+  margin-bottom: 0.5rem;
+  font-size: 1.05rem;
+}
+
+.docs-preview-link {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-accent);
+}
+
+/* --- Landing FAQ (native details/summary accordion) --- */
+.faq-list {
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.faq-item {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius);
+  padding: 1.1rem 1.5rem;
+}
+
+.faq-item summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--color-text);
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.faq-item summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq-item summary::after {
+  content: '+';
+  font-size: 1.1rem;
+  color: var(--color-accent);
+  transition: transform var(--transition);
+}
+
+.faq-item[open] summary::after {
+  transform: rotate(45deg);
+}
+
+.faq-item p {
+  margin: 0.75rem 0 0;
+  font-size: 0.95rem;
+  color: var(--color-text-secondary);
+}
+
 
 /* --- Usage Section --- */
 .usage-grid {
@@ -1385,6 +2329,75 @@ pre.astro-code code {
     letter-spacing: -0.01em;
   }
 
+  /* Products dropdown becomes a static nested list inside the overlay. */
+  .nav-menu-primary .nav-dropdown {
+    position: static;
+  }
+
+  .nav-menu-primary .nav-dropdown-trigger {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 1.25rem 0 0.25rem;
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--color-text);
+    letter-spacing: -0.01em;
+  }
+
+  .nav-menu-primary .nav-dropdown-caret {
+    display: none;
+  }
+
+  .nav-menu-primary .nav-dropdown-panel {
+    position: static;
+    transform: none;
+    min-width: 0;
+    padding: 0 0 0.25rem;
+    background: none;
+    border: none;
+    box-shadow: none;
+    /* Collapsed by default in the mobile overlay. display:none removes the
+       panel from the layout entirely, so it leaves no blank gap under the
+       trigger (visibility:hidden would keep the box occupying its height).
+       The desktop :hover/:focus-within rules can't show it either — they
+       only flip opacity/visibility, which don't apply to a display:none
+       box. */
+    display: none;
+  }
+
+  .nav-menu-primary .nav-dropdown.nav-dropdown-open .nav-dropdown-panel,
+  .nav-menu-primary .nav-dropdown[data-state='open'] .nav-dropdown-panel {
+    display: block;
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .nav-menu-primary .nav-dropdown-item {
+    padding: 0.5rem 0;
+  }
+
+  .nav-menu-primary .nav-dropdown-item:hover {
+    background: none;
+  }
+
+  .nav-menu-primary .nav-dropdown-name {
+    font-size: 1.05rem;
+    font-weight: 500;
+  }
+
+  .nav-menu-primary .nav-dropdown-desc {
+    font-size: 0.85rem;
+  }
+
+  .nav-menu-primary .nav-dropdown-all {
+    margin-top: 0.25rem;
+    padding: 0.75rem 0;
+    border-top: 1px solid var(--color-border-light);
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
   /* GitHub CTA sits right under the links - always visible, no scroll.
      A top margin separates it from the link list. */
   .nav-menu .nav-cta {
@@ -1396,6 +2409,49 @@ pre.astro-code code {
 
   .nav-locale {
     margin: 0;
+  }
+
+  /* On mobile the header bar holds logo + search + locale + theme +
+     hamburger. Search collapses to icon-only (label hidden) so it fits next
+     to the locale switcher without overlapping. The locale switcher text is
+     also hidden below 480px (see the media query further down). */
+  .search-open-label,
+  .search-open-kbd {
+    display: none;
+  }
+
+  /* Uniform control cluster: search, locale, and theme buttons get the same
+     fixed square footprint (based on --nav-control-h) so they sit level
+     next to the hamburger. Their default padding is reset here; borders are
+     kept so all three look like sibling buttons. */
+  .nav-actions {
+    gap: 0.4rem;
+  }
+  .nav-actions .search-open.search-open {
+    width: var(--nav-control-h);
+    padding: 0;
+    justify-content: center;
+  }
+  .locale-switcher-btn {
+    min-width: var(--nav-control-h);
+    height: var(--nav-control-h);
+    padding: 0 0.7rem;
+    justify-content: center;
+  }
+  .nav-actions .theme-toggle {
+    width: var(--nav-control-h);
+    height: var(--nav-control-h);
+  }
+
+  /* On mobile the header bar holds logo + locale switcher + theme toggle +
+     hamburger. Hide the wordmark (keep the logo mark) so the bar doesn't get
+     crowded on narrow screens, and tighten the right cluster's gap. */
+  .logo-text {
+    display: none;
+  }
+
+  .nav-right {
+    gap: 0.75rem;
   }
 
   /* Lock background scroll while the overlay is open. */
@@ -1429,5 +2485,14 @@ pre.astro-code code {
   }
   .article {
     padding: 2.5rem 1.25rem;
+  }
+
+  /* Very narrow screens: hide the locale label, keep the globe icon, so
+     search + locale + theme fit in the header bar without overlap. */
+  .locale-switcher-btn > span:not(.locale-switcher-globe) {
+    display: none;
+  }
+  .locale-switcher-btn {
+    padding: 0.4rem 0.5rem;
   }
 }

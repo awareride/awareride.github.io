@@ -1,11 +1,27 @@
 // Shared, locale-aware helpers for localized docs collections.
 // All product × locale collections follow the naming `<product>Docs<Locale>`
-// (e.g. `packscopeDocsZh`), generated in content.config.ts. Route files stay
+// (e.g. `viteDocsZh`), generated in content.config.ts. Route files stay
 // thin by delegating path generation and fallback rendering to these helpers.
 
 import { getCollection, render } from 'astro:content';
-import { defaultLocale, cap, type Locale } from './i18n';
+import { defaultLocale, collectionSuffix, type Locale } from './i18n';
+import { hasDocDir } from './doc-dirs';
+import { products } from '../../site.config';
 import { buildNav, type NavItem } from './docs';
+import {
+  tagSlug,
+  tagsOfEntries,
+  filterEntriesByTagSlug,
+  relatedEntries,
+  type TagInfo,
+  type TagPostEntry,
+} from './tags';
+
+// Re-export the pure tag helpers so existing consumers importing them from
+// './content' (TagPage.astro, post routes) keep working unchanged. The
+// implementations now live in ./tags, which is unit-testable standalone.
+export { tagSlug, tagsOfEntries, filterEntriesByTagSlug, relatedEntries };
+export type { TagInfo, TagPostEntry };
 
 /** Minimal entry shape consumed by helpers and route files. We use this instead of
  *  `CollectionEntry<string>` (which collapses `data` to `never`) because the
@@ -13,10 +29,19 @@ import { buildNav, type NavItem } from './docs';
 export interface DocEntryLike {
   id: string;
   data: { title: string; description?: string; order: number };
-  render(): Promise<{ Content: any }>;
+  render(): Promise<{ Content: any; headings: MarkdownHeading[] }>;
+}
+
+/** Minimal shape of a heading returned by Astro's render(). */
+export interface MarkdownHeading {
+  depth: number;
+  slug: string;
+  text: string;
 }
 export interface PostEntryLike {
   id: string;
+  /** Raw markdown body (glob loader exposes it); used by the llms.txt corpus builders. */
+  body?: string;
   data: {
     title: string; date: Date; description: string; tags: string[];
     author?: string; source?: string; draft?: boolean;
@@ -39,10 +64,21 @@ export interface RenderedPage {
   title: string;
   description?: string;
   navItems: NavItem[];
+  headings: MarkdownHeading[];
 }
 
 function collectionName(productName: string, locale: Locale): string {
-  return `${productName}Docs${cap(locale)}`;
+  return `${productName}Docs${collectionSuffix(locale)}`;
+}
+
+/** Docs for a product + locale, or [] when the product has no docs dir for
+ *  that locale. Mirrors what content.config.ts registers: a docs-less product
+ *  has no collection, and calling getCollection() on it would warn - so we
+ *  skip the call entirely (same directory check as the collection generator). */
+async function getProductDocs(productName: string, locale: Locale): Promise<DocEntryLike[]> {
+  const product = products.find((p) => p.slug === productName);
+  if (!product || !hasDocDir(product.slug, product.base, locale)) return [];
+  return (await getCollection(collectionName(productName, locale) as any)) as DocEntryLike[];
 }
 
 /**
@@ -63,14 +99,14 @@ export async function getLocalizedPaths(
   basePath: string,
   locale: Locale,
 ): Promise<{ params: { slug: string }; props: LocalizedPathProps }[]> {
-  const primary: DocEntryLike[] = await getCollection(collectionName(productName, locale) as any);
+  const primary: DocEntryLike[] = await getProductDocs(productName, locale);
   const primarySlugs = new Set(primary.map((d) => d.id));
 
   let source: { doc: DocEntryLike; isFallback: boolean }[];
   if (locale === defaultLocale) {
     source = primary.map((doc) => ({ doc, isFallback: false }));
   } else {
-    const fallback: DocEntryLike[] = await getCollection(collectionName(productName, defaultLocale) as any);
+    const fallback: DocEntryLike[] = await getProductDocs(productName, defaultLocale);
     source = [
       ...primary.map((doc) => ({ doc, isFallback: false })),
       ...fallback
@@ -104,12 +140,12 @@ export async function renderLocalizedPage(
   slug: string,
   basePath: string,
 ): Promise<RenderedPage | null> {
-  const primary: DocEntryLike[] = await getCollection(collectionName(productName, locale) as any);
+  const primary: DocEntryLike[] = await getProductDocs(productName, locale);
   let entry = primary.find((d) => d.id === slug);
   let isFallback = false;
 
   if (!entry && locale !== defaultLocale) {
-    const fallback: DocEntryLike[] = await getCollection(collectionName(productName, defaultLocale) as any);
+    const fallback: DocEntryLike[] = await getProductDocs(productName, defaultLocale);
     entry = fallback.find((d) => d.id === slug);
     isFallback = true;
   }
@@ -117,14 +153,15 @@ export async function renderLocalizedPage(
 
   // Nav matches the rendered body's source language.
   const navSource: DocEntryLike[] = isFallback
-    ? await getCollection(collectionName(productName, defaultLocale) as any)
+    ? await getProductDocs(productName, defaultLocale)
     : primary;
   const navItems = buildNav(navSource, basePath);
 
-  const { Content } = await render(entry as any);
+  const { Content, headings } = await render(entry as any);
   return {
     entry,
     Content,
+    headings,
     locale,
     isFallback,
     title: entry.data.title,
@@ -143,26 +180,27 @@ export async function getLocalizedDocIndex(
   locale: Locale,
   basePath: string,
 ): Promise<RenderedPage | null> {
-  const primary: DocEntryLike[] = await getCollection(collectionName(productName, locale) as any);
+  const primary: DocEntryLike[] = await getProductDocs(productName, locale);
   let entry = primary.find((d) => d.id === 'index');
   let isFallback = false;
 
   if (!entry && locale !== defaultLocale) {
-    const fallback: DocEntryLike[] = await getCollection(collectionName(productName, defaultLocale) as any);
+    const fallback: DocEntryLike[] = await getProductDocs(productName, defaultLocale);
     entry = fallback.find((d) => d.id === 'index');
     isFallback = true;
   }
   if (!entry) return null;
 
   const navSource: DocEntryLike[] = isFallback
-    ? await getCollection(collectionName(productName, defaultLocale) as any)
+    ? await getProductDocs(productName, defaultLocale)
     : primary;
   const navItems = buildNav(navSource, basePath);
 
-  const { Content } = await render(entry as any);
+  const { Content, headings } = await render(entry as any);
   return {
     entry,
     Content,
+    headings,
     locale,
     isFallback,
     title: entry.data.title,
@@ -172,12 +210,102 @@ export async function getLocalizedDocIndex(
 }
 
 // ---------------------------------------------------------------------------
-// Posts — same fallback pattern as docs, but collections are named
+// Product landing info - structured per-product Markdown that drives the
+// auto-generated landing page. One file per product + locale at
+// src/content/product-info/<locale>/<slug>.md; falls back to the default
+// locale like docs/posts. Returns frontmatter fields + the rendered body.
+// ---------------------------------------------------------------------------
+
+function productInfoCollectionName(locale: Locale): string {
+  return `productInfo${collectionSuffix(locale)}`;
+}
+
+export interface ProductInfoEntryLike {
+  id: string;
+  body?: string;
+  data: {
+    tagline: string;
+    description: string;
+    features: {
+      title: string;
+      body: string;
+      icon?: string | { paths: string[]; strokeWidth?: number; variant?: 'outline' | 'filled' };
+      image?: string | { src?: string; fallback?: string; gradient?: string };
+      span?: number;
+    }[];
+    install?: string;
+    highlights: { label: string; value: string }[];
+    links: { label: string; href: string }[];
+    sections?: { type: string; data?: unknown }[];
+  };
+  render(): Promise<{ Content: any; headings: MarkdownHeading[] }>;
+}
+
+export interface ProductInfoSection {
+  type: string;
+  data?: unknown;
+}
+
+export interface ProductInfo {
+  tagline: string;
+  description: string;
+  features: {
+    title: string;
+    body: string;
+    icon?: string | { paths: string[]; strokeWidth?: number; variant?: 'outline' | 'filled' };
+    image?: string | { src?: string; fallback?: string; gradient?: string };
+    span?: number;
+  }[];
+  install?: string;
+  highlights: { label: string; value: string }[];
+  links: { label: string; href: string }[];
+  /** Landing section list ("MD declares data, code registry maps components").
+   *  undefined = legacy fixed order. */
+  sections?: ProductInfoSection[];
+  Content: any;
+  hasBody: boolean;
+  locale: Locale;
+  isFallback: boolean;
+}
+
+/** Resolve a product's landing info for a locale, with default-locale fallback.
+ *  Returns null when no file exists for the product in either locale. */
+export async function getLocalizedProductInfo(
+  slug: string,
+  locale: Locale,
+): Promise<ProductInfo | null> {
+  const primary: ProductInfoEntryLike[] = await getCollection(productInfoCollectionName(locale) as any);
+  let entry = primary.find((d) => d.id === slug);
+  let isFallback = false;
+  if (!entry && locale !== defaultLocale) {
+    const fallback: ProductInfoEntryLike[] = await getCollection(productInfoCollectionName(defaultLocale) as any);
+    entry = fallback.find((d) => d.id === slug);
+    isFallback = true;
+  }
+  if (!entry) return null;
+  const { Content } = await render(entry as any);
+  return {
+    tagline: entry.data.tagline,
+    description: entry.data.description,
+    features: entry.data.features,
+    install: entry.data.install,
+    highlights: entry.data.highlights,
+    links: entry.data.links,
+    sections: entry.data.sections,
+    Content,
+    hasBody: Boolean(entry.body && entry.body.trim()),
+    locale,
+    isFallback,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Posts - same fallback pattern as docs, but collections are named
 // `posts<Locale>` (no product prefix) and drafts are filtered out.
 // ---------------------------------------------------------------------------
 
 function postsCollectionName(locale: Locale): string {
-  return `posts${cap(locale)}`;
+  return `posts${collectionSuffix(locale)}`;
 }
 
 export interface LocalizedPostPathProps {
@@ -260,4 +388,58 @@ export async function renderLocalizedPost(
 
   const { Content } = await render(entry as any);
   return { entry, Content, locale, isFallback, data: entry.data };
+}
+
+// ---------------------------------------------------------------------------
+// Tags - aggregate over the localized-posts set (incl. fallback), so a tag
+// page lists every post a reader would see on /posts, regardless of whether a
+// localized version exists. The pure logic (tagSlug, aggregation, related-post
+// ranking) lives in ./tags; this module wires it to the localized-posts set.
+// ---------------------------------------------------------------------------
+
+/** Every tag across the localized-posts set (incl. fallback), with counts.
+ *  The label shown is from the first post encountered that uses the tag, so it
+ *  reflects the locale's own wording when present. */
+export async function getAllTags(locale: Locale): Promise<TagInfo[]> {
+  const posts = await getLocalizedPosts(locale);
+  return tagsOfEntries(posts.map(({ entry }) => entry));
+}
+
+/** Posts that carry a given tag (by slug), in the given locale (with fallback).
+ *  Newest first. Used by the tag page route. */
+export async function getPostsByTag(
+  locale: Locale,
+  tag: string,
+): Promise<{ entry: PostEntryLike; isFallback: boolean }[]> {
+  const posts = await getLocalizedPosts(locale);
+  const slug = tagSlug(tag);
+  const isFallbackById = new Map(posts.map((p) => [p.entry.id, p.isFallback]));
+  return filterEntriesByTagSlug(
+    posts.map(({ entry }) => entry),
+    slug,
+  ).map((entry) => ({
+    entry: entry as PostEntryLike,
+    isFallback: isFallbackById.get(entry.id) ?? false,
+  }));
+}
+
+/** Up to `limit` posts sharing the most tags with `slug`, excluding itself.
+ *  Used for the "related posts" section on an article page. Falls back to the
+ *  newest other posts when no tags overlap. */
+export async function getRelatedPosts(
+  locale: Locale,
+  slug: string,
+  limit = 3,
+): Promise<{ entry: PostEntryLike; isFallback: boolean }[]> {
+  const posts = await getLocalizedPosts(locale);
+  const related = relatedEntries(
+    posts.map(({ entry }) => entry),
+    slug,
+    limit,
+  );
+  const byId = new Map(posts.map((p) => [p.entry.id, p.isFallback]));
+  return related.map((entry) => ({
+    entry: entry as PostEntryLike,
+    isFallback: byId.get(entry.id) ?? false,
+  }));
 }

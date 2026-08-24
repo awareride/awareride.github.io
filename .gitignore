@@ -26,6 +26,9 @@ build/
 .packscope-cache/
 .astro/
 
+# Generated search index (pagefind output synced into public/ for dev)
+public/pagefind/
+
 # Local environment
 .env
 .env.local
