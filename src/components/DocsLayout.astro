@@ -5,7 +5,9 @@
 import Layout from './Layout.astro';
 import Nav from './Nav.astro';
 import Footer from './Footer.astro';
-import { t, type Locale, defaultLocale } from '../lib/i18n';
+import TableOfContents from './TableOfContents.astro';
+import { t, type Locale, defaultLocale, withBase, stripBase } from '../lib/i18n';
+import type { MarkdownHeading } from '../lib/content';
 
 export interface NavItem {
   href: string;
@@ -19,36 +21,47 @@ export interface Props {
   productName?: string;
   productHref?: string;
   navItems?: NavItem[];
-  basePath?: string;
   locale?: Locale;
   isFallback?: boolean;
+  headings?: MarkdownHeading[];
   alternates?: Partial<Record<Locale, string>>;
+  productSlug?: string;
 }
 
 const {
   title,
   description,
   sidebarTitle,
-  productName = 'Packscope',
-  productHref = '/packscope',
+  productName = 'Docs',
+  productHref = '/',
   navItems = [],
   locale = defaultLocale,
   isFallback = false,
+  headings = [],
   alternates,
+  productSlug,
 } = Astro.props;
 
 const ui = t[locale];
-const currentPath = Astro.url.pathname.replace(/\/$/, '');
+const currentPath = stripBase(Astro.url.pathname).replace(/\/$/, '');
 
 // Localized home/product links.
-const homeHref = locale === defaultLocale ? '/' : `/${locale}/`;
-const localizedProductHref = locale === defaultLocale ? productHref : `/${locale}${productHref}`;
+const homeHref = withBase(locale === defaultLocale ? '/' : `/${locale}/`);
+const localizedProductHref = withBase(locale === defaultLocale ? productHref : `/${locale}${productHref}`);
+
+// Prev/next docs from the ordered sidebar list. The current page matches one
+// of the nav items by its href (index -> basePath, others -> basePath/slug).
+const navIdx = navItems.findIndex(
+  (item) => item.href.replace(/\/$/, '') === currentPath,
+);
+const prevDoc = navIdx > 0 ? navItems[navIdx - 1] : null;
+const nextDoc = navIdx >= 0 && navIdx < navItems.length - 1 ? navItems[navIdx + 1] : null;
 ---
 
-<Layout title={title} description={description} locale={locale} alternates={alternates}>
+<Layout title={title} description={description} locale={locale} alternates={alternates} productSlug={productSlug}>
   <Nav alternates={alternates} />
 
-  <main>
+  <main data-pagefind-body>
     <div class="docs-page">
       <aside class="docs-sidebar" id="docs-sidebar">
         <button
@@ -68,7 +81,7 @@ const localizedProductHref = locale === defaultLocale ? productHref : `/${locale
             navItems.length > 0 ? (
               navItems.map(item => (
                 <a
-                  href={item.href}
+                  href={withBase(item.href)}
                   class:list={[{ active: currentPath === item.href.replace(/\/$/, '') }]}
                 >
                   {item.label}
@@ -82,17 +95,38 @@ const localizedProductHref = locale === defaultLocale ? productHref : `/${locale
       </aside>
 
       <div class="docs-main">
-        <div class="docs-breadcrumb">
-          <a href={homeHref}>{ui.home}</a> / <a href={localizedProductHref}>{productName}</a> / <span>{title}</span>
+        <div class="docs-content">
+          <div class="docs-breadcrumb">
+            <a href={homeHref}>{ui.home}</a> / <a href={localizedProductHref}>{productName}</a> / <span>{title}</span>
+          </div>
+
+          <article class="prose" data-pagefind-filter="scope:docs">
+            <h1 data-pagefind-filter={productSlug ? `product:${productSlug}` : undefined}>{title}</h1>
+            {isFallback && ui.fallbackNotice && (
+              <p class="fallback-notice" role="note">{ui.fallbackNotice}</p>
+            )}
+            <slot />
+          </article>
+
+          {(prevDoc || nextDoc) && (
+            <nav class="docs-prev-next" aria-label="Pagination">
+              {prevDoc ? (
+                <a class="docs-prev-next-item docs-prev" href={withBase(prevDoc.href)}>
+                  <span class="docs-prev-next-label">{ui.previous}</span>
+                  <span class="docs-prev-next-title">{prevDoc.label}</span>
+                </a>
+              ) : <span class="docs-prev-next-item" />}
+              {nextDoc ? (
+                <a class="docs-prev-next-item docs-next" href={withBase(nextDoc.href)}>
+                  <span class="docs-prev-next-label">{ui.next}</span>
+                  <span class="docs-prev-next-title">{nextDoc.label}</span>
+                </a>
+              ) : <span class="docs-prev-next-item" />}
+            </nav>
+          )}
         </div>
 
-        <article class="prose">
-          <h1>{title}</h1>
-          {isFallback && ui.fallbackNotice && (
-            <p class="fallback-notice" role="note">{ui.fallbackNotice}</p>
-          )}
-          <slot />
-        </article>
+        <TableOfContents headings={headings} />
       </div>
     </div>
   </main>
@@ -118,4 +152,33 @@ const localizedProductHref = locale === defaultLocale ? productHref : `/${locale
       a.addEventListener('click', () => setOpen(false));
     });
   }
+</script>
+
+<script>
+  // Copy-to-clipboard buttons on code blocks. Progressive enhancement: the
+  // button is injected here, so no-JS users see clean code blocks. Scoped to
+  // .prose so non-docs pages are unaffected.
+  document.querySelectorAll<HTMLPreElement>('.prose pre').forEach((pre) => {
+    const code = pre.querySelector('code');
+    if (!code) return;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'copy-code-btn';
+    btn.setAttribute('aria-label', 'Copy code');
+    btn.textContent = 'Copy';
+    btn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(code.textContent ?? '');
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 1600);
+      } catch {
+        // Clipboard API unavailable - leave the button inert.
+      }
+    });
+    pre.appendChild(btn);
+  });
 </script>

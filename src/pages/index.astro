@@ -5,10 +5,13 @@ import Layout from '../components/Layout.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 import PostCard from '../components/PostCard.astro';
+import Media from '../components/Media.astro';
 import { getLocalizedPosts } from '../lib/content';
-import { home, localizePath, buildAlternates } from '../lib/i18n';
+import { home, org, localizePath, withBase, buildAlternates, locales } from '../lib/i18n';
+import { products, site } from '../../site.config';
 
 const c = home.en;
+const o = org.en;
 const items = await getLocalizedPosts('en');
 const latestPosts = items
   .sort((a, b) => b.entry.data.date.getTime() - a.entry.data.date.getTime())
@@ -19,10 +22,11 @@ const alternates = buildAlternates('/');
 <Layout title={c.title} description={c.description} locale="en" alternates={alternates}>
   <Nav alternates={alternates} />
 
-  <main>
+  <main data-pagefind-body>
     <!-- Hero -->
     <section class="hero">
       <div class="hero-glow" aria-hidden="true"></div>
+      <div class="hero-glow hero-glow-2" aria-hidden="true"></div>
       <div class="container">
         <p class="eyebrow">{c.eyebrow}</p>
         <h1 class="hero-title">
@@ -31,10 +35,28 @@ const alternates = buildAlternates('/');
         </h1>
         <p class="hero-lead">{c.heroLead}</p>
         <div class="hero-actions">
-          <a href="https://github.com/awareride" class="btn btn-primary" target="_blank" rel="noopener noreferrer">
+          <a href={site.orgUrl} class="btn btn-primary" target="_blank" rel="noopener noreferrer">
             {c.ctaGithub}
           </a>
-          <a href="#projects" class="btn btn-secondary">{c.ctaProjects}</a>
+          <a href={withBase(localizePath('/packscope/docs', 'en'))} class="btn btn-secondary">{c.ctaProjects}</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Mission: the organization's front door (driven by the `org` block in copy.ts) -->
+    <section id="mission" class="section">
+      <div class="container">
+        <div class="section-header">
+          <p class="eyebrow">{o.eyebrow}</p>
+          <h2>{o.title}</h2>
+          <p class="section-lead mission-lead">{o.mission}</p>
+        </div>
+        <div class="mission-links">
+          {o.links.map((link: { label: string; href: string }) => (
+            <a href={link.href} class="btn btn-secondary" target={link.href.startsWith('http') ? '_blank' : undefined} rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}>
+              {link.label}
+            </a>
+          ))}
         </div>
       </div>
     </section>
@@ -63,12 +85,36 @@ const alternates = buildAlternates('/');
               ))}
             </div>
             <div style="text-align:center; margin-top:2rem;">
-              <a href={localizePath('/posts', 'en')} class="btn btn-secondary">{c.allPosts}</a>
+              <a href={withBase(localizePath('/posts', 'en'))} class="btn btn-secondary">{c.allPosts}</a>
             </div>
           </div>
         </section>
       )
     }
+
+    <!-- Stats (data-driven, mirrors the product landing stats) -->
+    <section class="section section-alt">
+      <div class="container">
+        <div class="section-header">
+          <p class="eyebrow">{c.homeStatsEyebrow}</p>
+          <h2>{c.homeStatsTitle}</h2>
+        </div>
+        <div class="stats-row">
+          <div class="stats-item">
+            <div class="stats-value">{products.length}</div>
+            <div class="stats-label">{c.homeStatsProducts}</div>
+          </div>
+          <div class="stats-item">
+            <div class="stats-value">{locales.length}</div>
+            <div class="stats-label">{c.homeStatsLocales}</div>
+          </div>
+          <div class="stats-item">
+            <div class="stats-value">65</div>
+            <div class="stats-label">{c.homeStatsPages}</div>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <!-- About -->
     <section id="about" class="section section-alt">
@@ -110,50 +156,41 @@ const alternates = buildAlternates('/');
       </div>
     </section>
 
-    <!-- Projects -->
-    <section id="projects" class="section">
+    <!-- Products -->
+    <section id="products" class="section">
       <div class="container">
         <div class="section-header">
-          <p class="eyebrow">{c.projectsEyebrow}</p>
-          <h2>{c.projectsTitle}</h2>
+          <p class="eyebrow">{c.productsEyebrow}</p>
+          <h2>{c.productsTitle}</h2>
         </div>
-        <div class="project-card">
-          <div class="project-info">
-            <div class="project-meta">
-              <span class="badge">Node CLI</span>
-              <span class="badge badge-soft">JavaScript</span>
-            </div>
-            <h3>packscope</h3>
-            <p>{c.packscopeDesc}</p>
-            <div class="project-actions">
-              <a href={localizePath('/packscope', 'en')} class="btn btn-primary">{c.learnMore}</a>
-              <a href="https://github.com/awareride/packscope" class="btn btn-secondary" target="_blank" rel="noopener noreferrer">
-                GitHub
-              </a>
-            </div>
-          </div>
-          <div class="project-preview" aria-hidden="true">
-            <div class="terminal">
-              <div class="terminal-header">
-                <span></span><span></span><span></span>
+        <div class="products-grid">
+          {products.map((p) => (
+            <div class="project-card">
+              <div class="project-info">
+                <div class="project-header">
+                  {p.logo && (
+                    <div class="project-logo">
+                      <Media media={p.logo} alt={`${p.name} logo`} shape="card" size={48} />
+                    </div>
+                  )}
+                  <h3>
+                    <a class="project-card-link" href={withBase(localizePath(`/${p.slug}`, 'en'))}>{p.name}</a>
+                  </h3>
+                </div>
+                <p class="project-desc">{p.description.en}</p>
+                <div class="project-meta">
+                  {p.badges.map((b) => (
+                    <span class="badge badge-soft">{b}</span>
+                  ))}
+                </div>
+                <div class="project-actions">
+                  <a href={p.github} class="btn btn-secondary" target="_blank" rel="noopener noreferrer">
+                    GitHub
+                  </a>
+                </div>
               </div>
-              <pre class="terminal-body"><code>$ npx packscope ./dist/app.js ./out
-
-<span class="term-comment"># webpack/rspack output</span>
-out/
-├── header.js
-├── webpack-runtime.js
-├── runtime.js
-├── index.js
-├── modules/&lt;id&gt;.js
-├── manifest.json
-├── rebuild.js
-└── package.json
-
-$ node out/index.js --version
-2.106.4</code></pre>
             </div>
-          </div>
+          ))}
         </div>
       </div>
     </section>
@@ -193,10 +230,9 @@ $ node out/index.js --version
           <h2>{c.ctaTitle}</h2>
           <p>{c.ctaBody}</p>
           <div class="cta-actions">
-            <a href="https://github.com/awareride" class="btn btn-primary btn-large" target="_blank" rel="noopener noreferrer">
+            <a href={site.orgUrl} class="btn btn-primary btn-large" target="_blank" rel="noopener noreferrer">
               {c.ctaGithubOrg}
             </a>
-            <a href="mailto:hello@awareride.com" class="btn btn-secondary btn-large">hello@awareride.com</a>
           </div>
         </div>
       </div>

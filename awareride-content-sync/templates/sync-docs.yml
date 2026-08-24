@@ -16,15 +16,15 @@
 #   <external>/docs/   ->  awareride.github.io/src/content/docs/${PRODUCT}/
 #
 # The external docs/ tree is flat by locale: docs/<locale>/<slug>.md
-# (e.g. docs/en/index.md, docs/zh/index.md). The product dimension is NOT in
+# (e.g. docs/en/index.md, docs/zh-Hans/index.md). The product dimension is NOT in
 # the external repo - it is injected by sync from the PRODUCT env var below, so
 # the hub ends up with src/content/docs/${PRODUCT}/<locale>/<slug>.md. Keeping
 # the external repo flat lets relative markdown links resolve against docs/ on
 # GitHub (rather than docs/<product>/).
 #
 # IMPORTANT: set PRODUCT (below) to a name that is listed in the hub's
-# src/content.config.ts `products` array, otherwise the synced content won't
-# have a collection. See SKILL.md "Registering a new product".
+# site.config.ts `products` array (repo root), otherwise the synced content
+# won't have a collection. See SKILL.md "Registering a new product".
 #
 # The copy uses `rsync -a docs/ dest/` ("contents of docs/ into dest/") so the
 # result is always src/content/docs/${PRODUCT}/..., never docs/docs/...

@@ -67,7 +67,7 @@ node .agents/skills/awareride-content-sync/scripts/validate.mjs
 
 It enforces frontmatter conformance and the **slug contract**: a file's slug is its path relative to
 the locale dir, and it must be byte-identical across locales. `en/getting-started.md` pairs with
-`zh/getting-started.md` - never `zh/Getting-Started.md` - or per-page fallback breaks.
+`zh-Hans/getting-started.md` - never `zh-Hans/Getting-Started.md` - or per-page fallback breaks.
 
 ## Retiring content
 
@@ -85,7 +85,7 @@ docs/en/legacy/
 
 ## Links that work in two places
 
-Source Markdown keeps GitHub-friendly relative links - `./getting-started.md`, `../zh/architecture.md`.
+Source Markdown keeps GitHub-friendly relative links - `./getting-started.md`, `../zh-Hans/architecture.md`.
 On the hub, Astro's Markdown processor does not rewrite body links, so a raw `./getting-started.md`
 would render as `href="./getting-started.md"` and 404. A small Sätteri mdast plugin fixes that at
 build time: it scans `src/content/**/*.md` once, builds a map of file paths to site URLs, and

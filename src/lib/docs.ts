@@ -11,7 +11,7 @@ interface DocEntry {
 }
 
 export function buildNav(docs: DocEntry[], basePath: string): NavItem[] {
-  return docs
+  return [...docs] // copy - never mutate the caller's array
     .sort((a, b) => {
       // index always first
       if (a.id === 'index') return -1;

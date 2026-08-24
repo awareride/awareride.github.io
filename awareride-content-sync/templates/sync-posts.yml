@@ -16,7 +16,7 @@
 #   <external>/posts/   ->  awareride.github.io/src/content/posts/
 #
 # The posts/ tree uses the locale layout posts/<locale>/... (e.g. posts/en/hello.md,
-# posts/zh/hello.md), mirroring the hub's src/content/posts/<locale>/... exactly.
+# posts/zh-Hans/hello.md), mirroring the hub's src/content/posts/<locale>/... exactly.
 # Keep filenames identical across locales so per-page fallback resolves.
 #
 # Why not use dmnemec/copy_file_to_another_repo_action? Its `cp -R src dest/`

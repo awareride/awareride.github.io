@@ -10,5 +10,5 @@
       "@/*": ["src/*"]
     }
   },
-  "include": ["src/**/*", ".astro/**/*"]
+  "include": ["site.config.ts", "src/**/*", ".astro/**/*"]
 }
