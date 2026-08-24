@@ -101,15 +101,10 @@ export const site = {
   nav: {
     links: [
       {
-        label: { en: 'Docs', 'zh-Hans': '文档' },
-        href: '/packscope/docs',
-        activePrefix: ['docs'],
-      },
-      {
         label: { en: 'Community', 'zh-Hans': '社区' },
         children: [
           { label: { en: 'GitHub', 'zh-Hans': 'GitHub' }, href: 'https://github.com/awareride', external: true, activePrefix: ['github'] },
-          { label: { en: 'Contact', 'zh-Hans': '联系' }, href: 'https://github.com/awareride/awareride.github.io/issues', external: true },
+          { label: { en: 'Discussions', 'zh-Hans': '讨论' }, href: 'https://github.com/orgs/awareride/discussions', external: true },
         ],
       },
     ] as NavLink[],
