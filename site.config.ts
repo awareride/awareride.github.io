@@ -120,7 +120,7 @@ export const site = {
         items: [
           { label: { en: 'Home', 'zh-Hans': '首页' }, href: '/' },
           { label: { en: 'Packscope', 'zh-Hans': 'Packscope' }, href: '/packscope' },
-          { label: { en: 'Docs', 'zh-Hans': '文档' }, href: '/packscope/docs' },
+          { label: { en: 'Astro Content Hub', 'zh-Hans': 'Astro Content Hub' }, href: '/astro-content-hub' },
         ],
       },
       {
