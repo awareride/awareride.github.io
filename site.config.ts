@@ -118,15 +118,14 @@ export const site = {
       {
         title: { en: 'Links', 'zh-Hans': '链接' },
         items: [
-          { label: { en: 'Home', 'zh-Hans': '首页' }, href: '/' },
-          { label: { en: 'Packscope', 'zh-Hans': 'Packscope' }, href: '/packscope' },
-          { label: { en: 'Astro Content Hub', 'zh-Hans': 'Astro Content Hub' }, href: '/astro-content-hub' },
+          { label: { en: 'Home', 'zh-Hans': '首页' }, href: '/' }
         ],
       },
       {
         title: { en: 'Connect', 'zh-Hans': '联系' },
         items: [
           { label: { en: 'GitHub', 'zh-Hans': 'GitHub' }, href: 'https://github.com/awareride', external: true },
+          { label: { en: 'Discussions', 'zh-Hans': '讨论' }, href: 'https://github.com/orgs/awareride/discussions', external: true }
         ],
       },
       { type: 'products', limit: 5 },
