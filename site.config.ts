@@ -141,18 +141,6 @@ export const site = {
 
 export const products: Product[] = [
   {
-    slug: 'astro-content-hub',
-    name: 'Astro Content Hub',
-    github: 'https://github.com/awareride/astro-content-hub',
-    badges: ['Astro', 'ContentHub'],
-    logo: { github: 'awareride' },
-    featured: true,
-    description: {
-      en: 'This template - a content hub that aggregates docs and posts from many repositories.',
-      'zh-Hans': '本模板 —— 聚合多个仓库文档与文章的内容中心。',
-    },
-  },
-  {
     slug: 'packscope',
     name: 'Packscope',
     github: 'https://github.com/awareride/packscope',
