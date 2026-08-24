@@ -31,11 +31,6 @@ features:
     body: "Pagefind 站内搜索、带 hreflang 备选的 sitemap、llms.txt、RSS,以及可部署到 GitHub Pages 或 Cloudflare Pages 的静态构建产物。"
   - title: "按产品换肤"
     body: "每个产品可通过一个作用域 CSS 文件覆盖其落地页与文档页的颜色令牌 —— 无需改动机制本身即可换品牌。"
-links:
-  - label: "查看源码"
-    href: "https://github.com/awareride/astro-content-hub"
-  - label: "阅读文档"
-    href: "/astro-content-hub/docs"
 sections:
   - type: hero
   - type: highlights
