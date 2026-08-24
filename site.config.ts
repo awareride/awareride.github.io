@@ -101,15 +101,10 @@ export const site = {
   nav: {
     links: [
       {
-        label: { en: 'Docs', 'zh-Hans': '文档' },
-        href: '/packscope/docs',
-        activePrefix: ['docs'],
-      },
-      {
         label: { en: 'Community', 'zh-Hans': '社区' },
         children: [
           { label: { en: 'GitHub', 'zh-Hans': 'GitHub' }, href: 'https://github.com/awareride', external: true, activePrefix: ['github'] },
-          { label: { en: 'Contact', 'zh-Hans': '联系' }, href: 'https://github.com/awareride/awareride.github.io/issues', external: true },
+          { label: { en: 'Discussions', 'zh-Hans': '讨论' }, href: 'https://github.com/orgs/awareride/discussions', external: true },
         ],
       },
     ] as NavLink[],
@@ -123,15 +118,14 @@ export const site = {
       {
         title: { en: 'Links', 'zh-Hans': '链接' },
         items: [
-          { label: { en: 'Home', 'zh-Hans': '首页' }, href: '/' },
-          { label: { en: 'Packscope', 'zh-Hans': 'Packscope' }, href: '/packscope' },
-          { label: { en: 'Docs', 'zh-Hans': '文档' }, href: '/packscope/docs' },
+          { label: { en: 'Home', 'zh-Hans': '首页' }, href: '/' }
         ],
       },
       {
         title: { en: 'Connect', 'zh-Hans': '联系' },
         items: [
           { label: { en: 'GitHub', 'zh-Hans': 'GitHub' }, href: 'https://github.com/awareride', external: true },
+          { label: { en: 'Discussions', 'zh-Hans': '讨论' }, href: 'https://github.com/orgs/awareride/discussions', external: true }
         ],
       },
       { type: 'products', limit: 5 },
