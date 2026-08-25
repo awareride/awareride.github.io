@@ -6,8 +6,16 @@ highlights:
     value: "MIT"
   - label: "Stack"
     value: "Node CLI"
-  - label: "Bundlers"
-    value: "webpack, rspack, rollup, esbuild, Vite"
+  - label: "Bundler"
+    value: "webpack"
+  - label: "Bundler"
+    value: "rspack"
+  - label: "Bundler"
+    value: "rollup"
+  - label: "Bundler"
+    value: "esbuild"
+  - label: "Bundler"
+    value: "Vite"
 install: |
   git clone https://github.com/awareride/packscope.git
   cd packscope
@@ -50,11 +58,6 @@ features:
     icon:
       paths:
         - "M4 12l4 4L20 6"
-links:
-  - label: "View Source"
-    href: "https://github.com/awareride/packscope"
-  - label: "Read the Docs"
-    href: "/packscope/docs"
 sections:
   - type: hero
   - type: highlights

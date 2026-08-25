@@ -31,7 +31,7 @@ single Markdown content tree under [`src/content/`](./src/content).
   (`.github/workflows/deploy.yml`); it publishes `dist/` to GitHub Pages and
   Cloudflare Pages.
 
-## Projects
+## Products
 
 - **[packscope](https://github.com/awareride/packscope)** — a Node CLI that
   unpacks mono JavaScript bundles from webpack, rspack, rollup, esbuild, and
