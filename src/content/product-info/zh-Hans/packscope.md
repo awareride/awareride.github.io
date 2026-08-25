@@ -6,8 +6,16 @@ highlights:
     value: "MIT"
   - label: "技术栈"
     value: "Node CLI"
-  - label: "支持的构建器"
-    value: "webpack、rspack、rollup、esbuild、Vite"
+  - label: "构建器"
+    value: "webpack"
+  - label: "构建器"
+    value: "rspack"
+  - label: "构建器"
+    value: "rollup"
+  - label: "构建器"
+    value: "esbuild"
+  - label: "构建器"
+    value: "Vite"
 install: |
   git clone https://github.com/awareride/packscope.git
   cd packscope
@@ -50,11 +58,6 @@ features:
     icon:
       paths:
         - "M4 12l4 4L20 6"
-links:
-  - label: "查看源码"
-    href: "https://github.com/awareride/packscope"
-  - label: "阅读文档"
-    href: "/packscope/docs"
 sections:
   - type: hero
   - type: highlights

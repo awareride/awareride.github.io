@@ -139,7 +139,7 @@ export const products: Product[] = [
     name: 'Packscope',
     github: 'https://github.com/awareride/packscope',
     badges: ['CLI', 'JavaScript', 'Bundle'],
-    logo: { github: 'awareride' },
+    logo: { src: 'https://raw.githubusercontent.com/awareride/packscope/main/icon-circle.svg' },
     featured: true,
     description: {
       en: 'Unpack mono JavaScript bundles from webpack, rspack, rollup, esbuild, and Vite into navigable, executable module trees.',
@@ -151,7 +151,7 @@ export const products: Product[] = [
     name: 'Astro Content Hub',
     github: 'https://github.com/awareride/astro-content-hub',
     badges: ['Astro', 'ContentHub'],
-    logo: { fallback: 'Hub', gradient: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)' },
+    logo: { src: 'https://raw.githubusercontent.com/awareride/astro-content-hub/main/public/images/logo.png' },
     featured: true,
     description: {
       en: 'The template this hub is built on — a content hub that aggregates docs and posts from many repositories.',
