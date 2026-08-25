@@ -1291,6 +1291,18 @@ a.tag:hover {
   color: var(--color-text);
 }
 
+/* On phones, a table whose unbreakable cells (code, paths) are wider than the
+   column would push the whole page sideways. Turn the table into a block that
+   scrolls horizontally inside its own area instead - same pattern as the
+   scrollable <pre> blocks. Desktop tables are untouched (they keep width:100%). */
+@media (max-width: 768px) {
+  .prose table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+}
+
 /* --- Docs layout --- */
 .docs-page {
   display: flex;
