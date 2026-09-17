@@ -1,12 +1,14 @@
 ---
 title: "Overview"
-description: "Documentation for the astro-content-hub template — a content hub that aggregates docs and posts from many repositories."
+description: "Documentation for the astro-content-hub template — an org & product portal that aggregates docs and posts from many repositories."
 order: 0
 ---
 
-`astro-content-hub` is a content-hub template: it aggregates documentation and
-blog posts from many open-source repositories into one **localized,
-auto-deployed static site**. It is built with Astro 7 (static output) and
+`astro-content-hub` is an **org & product portal** template built on a
+content-hub model: it aggregates documentation and blog posts from many
+open-source repositories into one **localized, auto-deployed static site**,
+gives the organization a front door, and gives every project a product
+landing page. It is built with Astro 7 (static output) and
 deploys for free to GitHub Pages and Cloudflare Pages.
 
 This documentation is itself **synced content**: it lives in this repository
