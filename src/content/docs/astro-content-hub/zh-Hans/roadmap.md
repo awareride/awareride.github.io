@@ -123,8 +123,14 @@ Machinery 改动。
   并从 README 与两个文档索引链接它。
 - `README.md` 与 `docs/en/index.md` 的文档表(附 zh-Hans 镜像)现在列出
   Vision 与这份路线图。
-- 可选的**仓库描述与 topics** 项留给维护者(需要 GitHub 权限;这是仓库
-  设置改动,不是代码或文档)。
+- 已在 GitHub 设置**仓库描述与 topics**(属仓库设置改动,非代码或文档):
+  描述改用「组织与产品门户」定位,并附加 19 个便于发现的 topics ——
+  `astro`、`astro-template`、`static-site-generator`、`docs-generator`、
+  `documentation`、`documentation-site`、`markdown`、`typescript`、`i18n`、
+  `github-pages`、`developer-portal`、`content-aggregation`、`ssg`、
+  `jamstack`、`cloudflare-pages`、`knowledge-base`、`landing-page`、`blog`、
+  `open-source`。`package.json` 的 `description`/`keywords` 已同步对齐,
+  避免 npm 元数据漂移。
 
 全部是文案/文档 —— 无 Machinery 改动。
 
@@ -136,13 +142,15 @@ Machinery 改动。
   链接它)。
 - **文档索引/表格** —— 在 `README.md` 和 `docs/en/index.md` 的文档表
   中加入 `Vision` 与这份路线图(附 zh-Hans 镜像)。
-- **仓库描述与 topics** —— 若需要,更新 GitHub 仓库描述/topics 以匹配
-  重构("org & product portal"、"multi-project docs"、"landing pages")。
+- **仓库描述与 topics** —— ✅ 已完成:描述与 topics 已更新为组织门户定位
+  ("org & product portal"、"multi-project docs"、"landing pages"),并同步了
+  `package.json` 的 keywords。
 
 ### 验收
 
 - ✓ README 与文档以组织门户的价值主张开头。
 - ✓ `vision.md` 和 `roadmap.md` 已从文档索引链接,双语。
+- ✓ GitHub 仓库描述与 topics 与组织门户定位一致。
 
 ## 阶段 4(延后)— 版本化文档
 

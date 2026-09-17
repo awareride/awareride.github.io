@@ -1,11 +1,12 @@
 ---
 title: "概览"
-description: "astro-content-hub 模板的文档 —— 一个从多个仓库聚合文档与文章的内容中心。"
+description: "astro-content-hub 模板的文档 —— 一个从多个仓库聚合文档与文章的组织与产品门户。"
 order: 0
 ---
 
-`astro-content-hub` 是一个内容中心模板:它将多个开源仓库的文档与博客文章
-聚合到一个**本地化、自动部署的静态站点**中。它基于 Astro 7(静态输出)构建,
+`astro-content-hub` 是一个基于内容中心模式的**组织与产品门户**模板:它将多个
+开源仓库的文档与博客文章聚合到一个**本地化、自动部署**的静态站点,为组织提供
+门户入口,并为每个项目提供独立的产品落地页。它基于 Astro 7(静态输出)构建,
 可免费部署到 GitHub Pages 与 Cloudflare Pages。
 
 本文档本身也是**同步内容**:它位于本仓库的 `docs/<locale>/` 目录下,通过

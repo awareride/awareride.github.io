@@ -142,9 +142,15 @@ find it.
   home — and linked from the README and both docs indexes.
 - The docs table in `README.md` and `docs/en/index.md` (+ zh-Hans mirrors)
   now lists Vision and this roadmap.
-- The optional **repository description + topics** item is left to the
-  maintainer (needs GitHub access; it is a repo-settings change, not code or
-  docs).
+- The **repository description + topics** were set on GitHub (a repo-settings
+  change, not code or docs): the description now leads with the org &
+  product portal framing, and 19 discovery topics are attached — `astro`,
+  `astro-template`, `static-site-generator`, `docs-generator`,
+  `documentation`, `documentation-site`, `markdown`, `typescript`, `i18n`,
+  `github-pages`, `developer-portal`, `content-aggregation`, `ssg`,
+  `jamstack`, `cloudflare-pages`, `knowledge-base`, `landing-page`, `blog`,
+  `open-source`. `package.json` `description`/`keywords` were aligned with
+  them so the npm metadata does not drift.
 
 All of it is copy/docs — no Machinery changes.
 
@@ -157,15 +163,16 @@ All of it is copy/docs — no Machinery changes.
   from README and the docs index).
 - **Docs index / table** — add `Vision` and this roadmap to the docs table in
   `README.md` and `docs/en/index.md` (with zh-Hans mirrors).
-- **Repository description + topics** — if desired, update the GitHub repo
-  description/topics to match the reframing ("org & product portal",
-  "multi-project docs", "landing pages").
+- **Repository description + topics** — ✅ done: description and topics
+  updated to the org-portal framing ("org & product portal", "multi-project
+  docs", "landing pages"), with `package.json` keywords aligned.
 
 ### Acceptance
 
 - ✓ README and docs lead with the org-portal value proposition.
 - ✓ `vision.md` and `roadmap.md` are linked from the docs index, in both
   locales.
+- ✓ The GitHub repository description/topics match the org-portal framing.
 
 ## Phase 4 (deferred) — Versioned docs
 
